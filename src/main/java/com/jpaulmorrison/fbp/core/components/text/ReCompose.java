@@ -21,6 +21,7 @@ package com.jpaulmorrison.fbp.core.components.text;
 import com.jpaulmorrison.fbp.core.engine.Component;
 import com.jpaulmorrison.fbp.core.engine.ComponentDescription;
 import com.jpaulmorrison.fbp.core.engine.InPort;
+import com.jpaulmorrison.fbp.core.engine.InPorts;
 import com.jpaulmorrison.fbp.core.engine.InputPort;
 import com.jpaulmorrison.fbp.core.engine.OutPort;
 import com.jpaulmorrison.fbp.core.engine.OutputPort;
@@ -32,7 +33,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
  */
 @ComponentDescription("Build output records from words")
 @OutPort("OUT")
-@InPort("IN")
+@InPorts({@InPort("IN"), @InPort(value = "SIZE", type = String.class, isIIP = true)})
 public class ReCompose extends Component {
 
   

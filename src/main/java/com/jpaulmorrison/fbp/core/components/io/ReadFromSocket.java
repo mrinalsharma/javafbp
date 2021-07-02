@@ -51,7 +51,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
  */
 @ComponentDescription("Generate stream of packets from socket")
 @OutPort(value = "OUT", description = "Read packets", type = String.class)
-@InPort(value = "PORT", description = "Port name", type = String.class)
+@InPort(value = "PORT", description = "Port name", type = String.class, isIIP = true)
 public class ReadFromSocket extends Component {
 
   

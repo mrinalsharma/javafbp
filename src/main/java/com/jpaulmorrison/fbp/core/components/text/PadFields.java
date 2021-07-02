@@ -34,7 +34,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
  */
 @ComponentDescription("Pass through a character SEParated stream, adding PAD up to LIMITS of field lengths")
 @OutPorts({ @OutPort(value = "OUT") })
-@InPorts({ @InPort("IN"), @InPort(value = "LIMITS"), @InPort(value = "PAD"), @InPort("SEP") })
+@InPorts({ @InPort("IN"), @InPort(value = "LIMITS", type = String.class, isIIP = true), @InPort(value = "PAD", type = String.class, isIIP = true), @InPort(value = "SEP", type = String.class, isIIP = true) })
 public class PadFields extends Component {
 
  

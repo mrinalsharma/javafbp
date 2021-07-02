@@ -36,7 +36,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
  */
 @ComponentDescription("Take words IN and deliver OUT a line no longer than MEASURE characters")
 @OutPorts({ @OutPort(value = "OUT") })
-@InPorts({ @InPort("IN"), @InPort("MEASURE") })
+@InPorts({ @InPort("IN"), @InPort(value = "MEASURE", type = String.class, isIIP = true) })
 public class WordsToLine extends Component {
   
 

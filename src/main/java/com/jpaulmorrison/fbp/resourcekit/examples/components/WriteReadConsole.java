@@ -41,7 +41,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
 @ComponentDescription("Write MENU and IN to console, then capture user input and send to CMD")
 @InPorts({
     @InPort(value = "IN", description = "SEEK: initial file pointer, PAGE: of lines, NEXT: file pointer", type = Hashtable.class),
-    @InPort(value = "MENU", description = "Text to prompt the user", type = String.class) })
+    @InPort(value = "MENU", description = "Text to prompt the user", type = String.class, isIIP = true) })
 @OutPorts({ @OutPort(value = "CMD", description = "User input", type = String.class) })
 public class WriteReadConsole extends Component {
 

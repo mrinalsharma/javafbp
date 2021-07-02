@@ -44,8 +44,8 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
  */
 @ComponentDescription("Send page of lines from a file")
 @OutPort(value = "OUT", description = "SEEK: initial file pointer, PAGE: of lines, NEXT: file pointer", type = Hashtable.class)
-@InPorts({ @InPort(value = "SOURCE", description = "File name, optional format (Java charset)", type = String.class),
-    @InPort(value = "SEEK", description = "File pointer, line count required", type = String.class) })
+@InPorts({ @InPort(value = "SOURCE", description = "File name, optional format (Java charset)", type = String.class, isIIP = true),
+    @InPort(value = "SEEK", description = "File pointer, line count required", type = String.class, isIIP = true) })
 public class FileReadLines extends Component {
 
  

@@ -43,7 +43,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
   @OutPort(value = "DIRS", description = "Directories", type = String.class),
   @OutPort(value = "FILES", description = "Files", type = String.class)
   })
-@InPort(value = "SOURCE", description = "Directory name", type = String.class)
+@InPort(value = "SOURCE", description = "Directory name", type = String.class, isIIP = true)
 
 public class ListFiles extends Component {
 

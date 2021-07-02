@@ -34,7 +34,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
 */
 @ComponentDescription("Generates stream of packets under control of a counter")
 @OutPort(value = "OUT", description = "Generated stream", type = String.class)
-@InPort(value = "COUNT", description = "Count of packets to be generated", type = String.class)
+@InPort(value = "COUNT", description = "Count of packets to be generated", type = String.class, isIIP = true)
 public class GenerateTestData extends Component {
 
  

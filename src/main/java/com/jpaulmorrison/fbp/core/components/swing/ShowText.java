@@ -46,7 +46,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
 @ComponentDescription("Displays packets on Swing EditorPane")
 @MustRun
 @InPorts({ @InPort(value = "IN", description = "Packets to be displayed", type = String.class),
-		@InPort(value = "TITLE", description = "Title string", type = String.class) })
+		@InPort(value = "TITLE", description = "Title string", type = String.class, isIIP = true) })
 @OutPort(value = "OUT", optional = true, description = "Output port, if connected", type = String.class)
 public class ShowText extends Component {
 

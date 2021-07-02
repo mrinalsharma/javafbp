@@ -33,7 +33,7 @@ import com.jpaulmorrison.fbp.core.engine.*;
  */
 @ComponentDescription("Collate two or more streams, based on a list of control field lengths ")
 @OutPort("OUT")
-@InPorts({ @InPort("CTLFIELDS"), @InPort(value = "IN", arrayPort = true) })
+@InPorts({ @InPort(value = "CTLFIELDS", type = String.class, isIIP = true), @InPort(value = "IN", arrayPort = true) })
 public class Collate extends Component {
 
   

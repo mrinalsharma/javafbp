@@ -39,8 +39,8 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
 @OutPort("OUT")
 @InPorts({
     @InPort(value = "IN", description = "Strings to have replacement applied", type = String.class),
-    @InPort(value = "FIND", description = "String to find (you can use a Java regular expression)", type = String.class),
-    @InPort(value = "REPL", description = "Replacement String", type = String.class) })
+    @InPort(value = "FIND", description = "String to find (you can use a Java regular expression)", type = String.class, isIIP = true),
+    @InPort(value = "REPL", description = "Replacement String", type = String.class, isIIP = true) })
 public class ReplaceRegExp extends Component {
 
   

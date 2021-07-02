@@ -35,4 +35,10 @@ public @interface ComponentDescription {
 
   
   String value() default "";
+  
+  
+  String icon() default "";
+  
+  String uiSchema() default "{}";
+  
 }

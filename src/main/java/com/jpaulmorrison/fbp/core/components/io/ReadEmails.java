@@ -40,7 +40,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
  */
 @ComponentDescription("Generate stream of emails from I/O file")
 @OutPort(value = "OUT", description = "Generated emails", type = String.class)
-@InPort(value = "SOURCE", description = "File name", type = String.class)
+@InPort(value = "SOURCE", description = "File name", type = String.class, isIIP = true)
 public class ReadEmails extends Component {
 
   

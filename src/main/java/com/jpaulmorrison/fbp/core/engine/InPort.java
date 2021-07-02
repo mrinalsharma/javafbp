@@ -50,6 +50,9 @@ public @interface InPort {
   Class type() default Object.class; // type of object expected on this input port
   
   boolean optional() default false;
-
+  
+  String uiSchema() default "{}";
+  
+  boolean isIIP() default false;
 
 }

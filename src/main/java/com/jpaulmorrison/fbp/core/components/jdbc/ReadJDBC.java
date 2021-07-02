@@ -18,11 +18,11 @@ import com.jpaulmorrison.fbp.core.engine.OutputPort;
 import com.jpaulmorrison.fbp.core.engine.Packet;
 
 @ComponentDescription("Reads table from MySQL and outputs result")
-@InPorts({ @InPort(value = "DATABASE", description = "Database name", type = String.class),
-		@InPort(value = "USER", description = "User name", type = String.class),
-		@InPort(value = "CLASS", description = "Object class", type = String.class),
-		@InPort(value = "FIELDS", description = "Field correspondences", type = String.class),
-		@InPort(value = "PSWD", description = "Password obtained from file", type = String.class) })
+@InPorts({ @InPort(value = "DATABASE", description = "Database name", type = String.class, isIIP = true),
+		@InPort(value = "USER", description = "User name", type = String.class, isIIP = true),
+		@InPort(value = "CLASS", description = "Object class", type = String.class, isIIP = true),
+		@InPort(value = "FIELDS", description = "Field correspondences", type = String.class, isIIP = true),
+		@InPort(value = "PSWD", description = "Password obtained from file", type = String.class, isIIP = true) })
 @OutPort(value = "OUT", description = "Table rows")
 
 public class ReadJDBC extends Component {

@@ -33,7 +33,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
 
 @ComponentDescription("Copies incoming packets - delayed until trigger received")
 @OutPort("OUT")
-@InPorts({ @InPort("IN"), @InPort("TRIGGER") })
+@InPorts({ @InPort("IN"), @InPort(value = "TRIGGER") })
 public class Gate extends Component {
 
   

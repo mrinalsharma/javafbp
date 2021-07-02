@@ -35,7 +35,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
  */
 @ComponentDescription("For each packet IN add the Strings PRE as a prefix and POST as a suffix, and copy to OUT")
 @OutPort("OUT")
-@InPorts({ @InPort("IN"), @InPort("PRE"), @InPort("POST") })
+@InPorts({ @InPort("IN"), @InPort(value = "PRE", type = String.class, isIIP = true), @InPort(value = "POST", type = String.class, isIIP = true) })
 public class Affix extends Component {
 
   

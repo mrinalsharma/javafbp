@@ -8,7 +8,7 @@ import com.jpaulmorrison.fbp.core.engine.OutPort;
 import com.jpaulmorrison.fbp.core.engine.OutputPort;
 import com.jpaulmorrison.fbp.core.engine.Packet;
 
-@InPort(value = "CONFIG", optional = true)
+@InPort(value = "CONFIG", optional = true, type = String.class, isIIP = true)
 @OutPort("OUT")
 public class GenerateSlowly extends Component {
 

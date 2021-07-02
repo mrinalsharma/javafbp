@@ -38,7 +38,7 @@ import com.jpaulmorrison.fbp.core.engine.Priority;
  * Component to play sequence of 1-second sound buffers - this component is the "front-end" of PlayTune
  */
 @ComponentDescription("Play sequence of 1-second sound buffers")
-@InPorts({ @InPort(value = "IN", arrayPort = true), @InPort("GAINS") })
+@InPorts({ @InPort(value = "IN", arrayPort = true), @InPort(value = "GAINS", type = String.class, isIIP = true) })
 @MustRun
 @Priority(Thread.MAX_PRIORITY)
 // to ensure component is not held up by other processing

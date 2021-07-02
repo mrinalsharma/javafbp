@@ -12,6 +12,12 @@
       <url>https://www.gnu.org/licenses/lgpl-3.0.txt</url>
     </license>
   </licenses>
+  <properties>
+        <maven.version>3.3.9</maven.version>
+        <java.version>11</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+  </properties>
   <dependencies>
   	 	<dependency>
   			<groupId>com.google.code.gson</groupId>

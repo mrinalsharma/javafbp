@@ -38,7 +38,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
 @OutPorts({ @OutPort(value = "ACC", description = "IPs accepted by filter"), 
 	@OutPort(value = "REJ", description = "IPs rejected by filter") })
 @InPorts({ @InPort(value = "IN", description = "input stream"), 
-	@InPort(value = "TEST", description = "char string being tested against") })
+	@InPort(value = "TEST", description = "char string being tested against", type = String.class, isIIP = true) })
 
 public class StartsWith extends Component {
 

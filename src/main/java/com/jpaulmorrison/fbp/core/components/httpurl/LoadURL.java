@@ -17,7 +17,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
 
 //https://www.codejava.net/java-se/networking/use-httpurlconnection-to-download-file-from-an-http-url
 
-@InPort(value = "SOURCE", description = "HTMLName")
+@InPort(value = "SOURCE", description = "HTMLName", type = String.class, isIIP = true)
 @OutPort(value = "OUT", description = "HTML")
 
 public class LoadURL extends Component {

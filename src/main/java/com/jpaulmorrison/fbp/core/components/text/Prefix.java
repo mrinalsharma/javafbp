@@ -34,7 +34,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
  */
 @ComponentDescription("Prefix each packet IN with the given String PRE and copy it to OUT")
 @OutPort("OUT")
-@InPorts({ @InPort("IN"), @InPort("PRE") })
+@InPorts({ @InPort("IN"), @InPort(value = "PRE", type = String.class, isIIP = true) })
 public class Prefix extends Component {
  
 

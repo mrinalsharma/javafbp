@@ -26,7 +26,7 @@ import com.jpaulmorrison.fbp.core.engine.*;
   */
 @ComponentDescription("Select from IN one packet by NUMBER (0 means first), sending via ACC, rejected packets via REJ")
 @OutPorts({ @OutPort(value = "ACC"), @OutPort(value = "REJ", optional = true) })
-@InPorts({ @InPort("IN"), @InPort("NUMBER") })
+@InPorts({ @InPort("IN"), @InPort(value = "NUMBER", type = Integer.class, isIIP = true) })
 public class SelNthItem extends Component {
 
  

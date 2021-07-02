@@ -52,7 +52,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
  */
 @ComponentDescription("Writes a stream of packets to a socket")
 @InPorts({ @InPort(value = "IN", description = "Packets to be written", type = String.class),
-    @InPort(value = "PORT", description = "Port name", type = String.class) })
+    @InPort(value = "PORT", description = "Port name", type = String.class, isIIP = true) })
 @OutPort(value = "OUT", optional = true, description = "Output port, if connected", type = String.class)
 @MustRun
 public class WriteToSocket extends Component {

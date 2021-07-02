@@ -35,7 +35,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
  */
 @ComponentDescription("Replace characters apart from EXC in each packet IN with the given OBS and copy to OUT")
 @OutPort("OUT")
-@InPorts({ @InPort("IN"), @InPort("OBS"), @InPort("EXC") })
+@InPorts({ @InPort("IN"), @InPort(value = "OBS", type = String.class, isIIP = true), @InPort(value = "EXC", type = String.class, isIIP = true) })
 public class Obscure extends Component {
 
  

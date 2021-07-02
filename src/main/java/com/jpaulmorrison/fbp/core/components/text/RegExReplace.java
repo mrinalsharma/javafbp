@@ -42,7 +42,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
 @ComponentDescription("Find occurrences of specified regex, and replace with 2nd pattern")
 @OutPort(value = "OUT", description = "modified blob")
 @InPorts({ @InPort(value = "IN", description = "blob to be processed"),
-    @InPort(value = "MASKS", description = "search & replace patterns") })
+    @InPort(value = "MASKS", description = "search & replace patterns", type = String.class, isIIP = true) })
 public class RegExReplace extends Component {
 
   

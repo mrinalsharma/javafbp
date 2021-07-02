@@ -45,7 +45,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
 @ComponentDescription("Writes a stream of packets to an I/O file")
 @InPorts({
     @InPort(value = "IN", description = "Packets to be written", type = String.class),
-    @InPort(value = "DESTINATION", description = "File name and optional format, separated by a comma", type = String.class) })
+    @InPort(value = "DESTINATION", description = "File name and optional format, separated by a comma", type = String.class, isIIP = true) })
 // filename [, format ]
 @OutPort(value = "OUT", optional = true, description = "Output port, if connected", type = String.class)
 @MustRun

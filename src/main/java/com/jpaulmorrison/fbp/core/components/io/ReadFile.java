@@ -41,7 +41,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
  */
 @ComponentDescription("Generate stream of packets from I/O file")
 @OutPort(value = "OUT", description = "Generated packets", type = String.class)
-@InPort(value = "SOURCE", description = "File name and optional format, separated by a comma", type = String.class)
+@InPort(value = "SOURCE", description = "File name and optional format, separated by a comma", type = String.class, isIIP = true)
 // filename [, format ]
 public class ReadFile extends Component {
 

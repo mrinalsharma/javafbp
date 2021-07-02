@@ -33,7 +33,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
 */
 @ComponentDescription("Generates stream of 5-packet substreams under control of a counter")
 @OutPort("OUT")
-@InPort("COUNT")
+@InPort(value = "COUNT", type = String.class, isIIP = true)
 public class GenSS extends Component {
 
  

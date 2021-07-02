@@ -33,7 +33,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
  */
 @ComponentDescription("Select names and email addresses from an LDIF file, and generate fixed layout packets")
 @OutPort("OUT")
-@InPorts( { @InPort(value = "LABEL", description = "Label for output packets", type = String.class), @InPort("IN") })
+@InPorts( { @InPort(value = "LABEL", description = "Label for output packets", type = String.class, isIIP = true), @InPort("IN") })
 public class LDIFScan extends Component {
 
  

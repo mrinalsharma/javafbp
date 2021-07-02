@@ -38,8 +38,8 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
 @ComponentDescription("Replace all occurrences of text matching FIND (case-sensitive) in each packet IN with the given REPL and send to OUT")
 @OutPort("OUT")
 @InPorts({ @InPort(value = "IN", description = "Strings to be modified", type = String.class),
-    @InPort(value = "FIND", description = "Search target", type = String.class),
-    @InPort(value = "REPL", description = "Replacement text", type = String.class) })
+    @InPort(value = "FIND", description = "Search target", type = String.class, isIIP = true),
+    @InPort(value = "REPL", description = "Replacement text", type = String.class, isIIP = true) })
 public class ReplaceString extends Component {
 
   

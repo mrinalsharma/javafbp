@@ -33,7 +33,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
 */
 @ComponentDescription("Generates a packet every 'n' milliseconds")
 @OutPort("OUT")
-@InPort("INTERVAL")
+@InPort(value = "INTERVAL", type = Integer.class, isIIP = true)
 public class Heartbeat extends Component {
 
   
