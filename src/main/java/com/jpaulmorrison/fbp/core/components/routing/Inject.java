@@ -32,7 +32,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
  */
 @ComponentDescription("Inject CONST from IIP to the IP OUT")
 @OutPort("OUT")
-@InPort(value= "CONST",type = Integer.class, isIIP = true)
+@InPort(value= "CONST",type = String.class, isIIP = true)
 public class Inject extends Component {
 
   

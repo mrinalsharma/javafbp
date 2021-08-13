@@ -150,7 +150,6 @@ public class Connection implements InputPort {
     if (usedSlots > 0) {
       traceFuncs(usedSlots + " packets on input connection lost");
     }
-
     notifyAll(); // wakes up any senders waiting for slots
 
   }

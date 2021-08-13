@@ -178,7 +178,7 @@ public abstract class Network extends Component {
       return null; // unreachable
     }
 
-    comp.setName(nme);
+    comp.setName(tpe.getSimpleName() +'-'+nme);
     comp.type = tpe;
     putComponent(nme, comp);
     comp.mother = this;
@@ -584,6 +584,8 @@ public abstract class Network extends Component {
       String s = "Flow Error :" + e;
       System.out.println("Network: " + s);
       System.out.flush();
+      // terminate the net instead of crashing the application
+      terminate();
       // rethrow the exception for external error handling
       // in case of a deadlock: deadlock is the cause
       throw e;

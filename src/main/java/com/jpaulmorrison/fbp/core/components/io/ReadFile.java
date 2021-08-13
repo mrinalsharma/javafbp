@@ -18,7 +18,6 @@
 
 package com.jpaulmorrison.fbp.core.components.io;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,76 +27,82 @@ import java.io.InputStreamReader;
 import com.jpaulmorrison.fbp.core.engine.Component;
 import com.jpaulmorrison.fbp.core.engine.ComponentDescription;
 import com.jpaulmorrison.fbp.core.engine.InPort;
+import com.jpaulmorrison.fbp.core.engine.InPorts;
 import com.jpaulmorrison.fbp.core.engine.InputPort;
 import com.jpaulmorrison.fbp.core.engine.OutPort;
 import com.jpaulmorrison.fbp.core.engine.OutputPort;
 import com.jpaulmorrison.fbp.core.engine.Packet;
 
-
 /**
  * Component to read data from a file, generating a stream of packets. The file
- * name is specified as a String via an InitializationConnection.
- * This component converts the specified format (if one is specified) to Unicode.
+ * name is specified as a String via an InitializationConnection. This component
+ * converts the specified format (if one is specified) to Unicode.
  */
 @ComponentDescription("Generate stream of packets from I/O file")
 @OutPort(value = "OUT", description = "Generated packets", type = String.class)
-@InPort(value = "SOURCE", description = "File name and optional format, separated by a comma", type = String.class, isIIP = true)
+@InPorts({
+		@InPort(value = "SOURCE", description = "File name and optional format, separated by a comma", type = String.class, isIIP = true),
+		@InPort(value = "TRIGGER", description = "Read the file when trigger is received.", type = Integer.class, optional = true) })
 // filename [, format ]
 public class ReadFile extends Component {
 
-  
-  private OutputPort outport;
+	private OutputPort outport;
 
-  private InputPort source;
+	private InputPort source;
 
-  @Override
-  protected void execute() {
-    Packet<?> rp = source.receive();
-    if (rp == null) {
-      return;
-    }
-    //source.close();
+	private InputPort trigger;
 
-    String sf = (String) rp.getContent();
-    String format = null;
-    int i = sf.indexOf(",");
-    if (i != -1) {
-      format = sf.substring(i + 1);
-      format = format.trim();
-      sf = sf.substring(0, i);
-    }
+	@Override
+	protected void execute() {
+		Packet<?> rp = source.receive();
+		if (rp == null) {
+			return;
+		}
 
-    try {
-      drop(rp);
-      FileInputStream in = new FileInputStream(new File(sf));
-      BufferedReader b = null;
-      if (format == null) {
-        b = new BufferedReader(new InputStreamReader(in));
-      } else {
-        b = new BufferedReader(new InputStreamReader(in, format));
-      }
+		String sf = (String) rp.getContent();
+		String format = null;
+		int i = sf.indexOf(",");
+		if (i != -1) {
+			format = sf.substring(i + 1);
+			format = format.trim();
+			sf = sf.substring(0, i);
+		}
 
-      String s;
-      while ((s = b.readLine()) != null) {
-        Packet<?> p = create(s);
-        if (outport.isClosed()) {
-          break;
-        }
+		try {
+			drop(rp);
+			Packet<?> rt = trigger.receive();
+			drop(rt);
+			FileInputStream in = new FileInputStream(new File(sf));
+			BufferedReader b = null;
+			if (format == null) {
+				b = new BufferedReader(new InputStreamReader(in));
+			} else {
+				b = new BufferedReader(new InputStreamReader(in, format));
+			}
 
-        outport.send(p);
-      }
-      b.close();
-    } catch (IOException e) {
-      System.out.println(e.getMessage() + " - file: " + sf + " - component: " + this.getName());
-    }
-  }
+			String s;
+			while ((s = b.readLine()) != null) {
+				Packet<?> p = create(s);
+				if (outport.isClosed()) {
+					break;
+				}
 
-  @Override
-  protected void openPorts() {
+				outport.send(p);
+			}
+			b.close();
+		} catch (IOException e) {
+			System.out.println(e.getMessage() + " - file: " + sf + " - component: " + this.getName());
+		}
+	}
 
-    outport = openOutput("OUT");
+	@Override
+	protected void openPorts() {
 
-    source = openInput("SOURCE");
+		outport = openOutput("OUT");
 
-  }
+		source = openInput("SOURCE");
+
+		trigger = openInput("TRIGGER");
+
+	}
 }
