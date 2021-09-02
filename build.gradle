@@ -5,7 +5,7 @@ buildscript {
     }
      
     dependencies {
-        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"      
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.30.0"      
         //classpath 'com.github.rholder:gradle-one-jar:1.0.4'          
      
     }
@@ -62,7 +62,7 @@ repositories {
 
 dependencies { 	
 	compileOnly 'com.google.code.gson:gson:2.8.6'
-	compileOnly 'mysql:mysql-connector-java:8.0.22'  
+//	compileOnly 'mysql:mysql-connector-java:8.0.22'  
  }  
 	
 java {       
