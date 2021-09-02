@@ -71,7 +71,8 @@ public class ReadFile extends Component {
 		try {
 			drop(rp);
 			Packet<?> rt = trigger.receive();
-			drop(rt);
+			if(rt != null)
+				drop(rt);
 			FileInputStream in = new FileInputStream(new File(sf));
 			BufferedReader b = null;
 			if (format == null) {

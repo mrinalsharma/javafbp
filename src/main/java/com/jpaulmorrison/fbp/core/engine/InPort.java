@@ -51,6 +51,8 @@ public @interface InPort {
   
   boolean optional() default false;
   
+  String uiValidate() default "";
+  
   String uiSchema() default "{}";
   
   boolean isIIP() default false;

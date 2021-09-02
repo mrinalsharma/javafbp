@@ -18,17 +18,7 @@ import com.jpaulmorrison.fbp.core.engine.Packet;
 @ComponentDescription("Trigger an event")
 @OutPort(value = "OUT", description = "Send 1 to the output port when timer is triggered.", type = Integer.class)
 @InPorts({
-		@InPort(value = "TIME", description = "Define at what time the time should fire.", type = Object.class, isIIP = true, uiSchema = "{\r\n"
-				+ "  \"type\": \"object\",\r\n" + "  \"oneOf\": [\r\n" + "    {\r\n"
-				+ "      \"title\":\"Firing Date-Time\",\r\n" + "      \"properties\": {\r\n"
-				+ "        \"Fire At\": {\r\n" + "          \"type\": \"string\",\r\n"
-				+ "          \"format\": \"date-time\"\r\n" + "        }\r\n" + "      },\r\n"
-				+ "      \"required\": [\r\n" + "        \"Fire At\"\r\n" + "      ]\r\n" + "    },\r\n" + "    {\r\n"
-				+ "      \"title\":\"Repeat\",\r\n" + "      \"properties\": {\r\n" + "        \"Repeat\": {\r\n"
-				+ "          \"type\": \"integer\",\r\n" + "          \"default\": 1,\r\n"
-				+ "          \"description\": \"Provide values in seconds\"\r\n" + "        }\r\n" + "      },\r\n"
-				+ "      \"required\": [\r\n" + "        \"Repeat\"\r\n" + "      ]\r\n" + "    }\r\n" + "  ]\r\n"
-				+ "}") })
+		@InPort(value = "TIME", description = "Define at what time the time should fire.", type = Object.class, isIIP = true, uiSchema = "trigger.json") })
 public class Trigger extends Component {
 
 	private OutputPort outPort;
