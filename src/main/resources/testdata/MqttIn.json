@@ -1,0 +1,16 @@
+{
+	"Server": "localhost",
+	"Port": 1883,
+	"Protocol": "MQTTV3.1.1",
+	"ClientId": "test-client1",
+	"KeepAlive": 60,
+	"UserName": "flow",
+	"Password": "flow",
+	"QOS": 1,
+	"Topic": "flow",
+	"TLS": true,
+	"Certificate": "aaa",
+	"PrivateKey": "bbb",
+	"CACertificate": "ccc",
+	"Use Clean Session": true
+}
