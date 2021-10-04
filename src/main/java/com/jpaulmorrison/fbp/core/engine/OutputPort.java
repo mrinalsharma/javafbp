@@ -144,7 +144,7 @@ public class OutputPort {
     return;
   }
 
-  String getName() {
+  public String getName() {
     return sender.getName() + "." + name;
   }
 

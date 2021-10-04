@@ -17,7 +17,6 @@
  */
 package com.jpaulmorrison.fbp.core.components.misc;
 
-
 import com.jpaulmorrison.fbp.core.engine.Component;
 import com.jpaulmorrison.fbp.core.engine.ComponentDescription;
 import com.jpaulmorrison.fbp.core.engine.InPort;
@@ -28,42 +27,43 @@ import com.jpaulmorrison.fbp.core.engine.OutPorts;
 import com.jpaulmorrison.fbp.core.engine.OutputPort;
 import com.jpaulmorrison.fbp.core.engine.Packet;
 
-
-/** Component to count a stream of packets, and output the result on the COUNT port.
-*/
+/**
+ * Component to count a stream of packets, and output the result on the COUNT
+ * port.
+ */
 @ComponentDescription("Counts stream of packets and outputs result")
 @InPort(value = "IN", description = "Incoming stream")
 @OutPorts({ @OutPort(value = "OUT", description = "Stream being passed through", optional = true),
-    @OutPort(value = "COUNT", description = "Count packet to be output", type = String.class) })
+		@OutPort(value = "COUNT", description = "Count packet to be output", type = String.class) })
 @MustRun
 public class Counter extends Component {
 
-  
-  private OutputPort countPort, outPort;
+	private OutputPort countPort, outPort;
 
-  private InputPort inPort;
+	private InputPort inPort;
 
-  @Override
-  protected void execute() {
-    int count = 0;
+	@Override
+	protected void execute() {
+		int count = 0;
 
-    Packet<?> p;
-    while ((p = inPort.receive()) != null) {
-      count++;
-      if (outPort.isConnected()) {
-        outPort.send(p);
-      } else {
-        drop(p);
-      }
-    }
-    Packet<?> ctp = create(Integer.toString(count));
-    countPort.send(ctp);
-  }
+		Packet<?> p;
+		while ((p = inPort.receive()) != null) {
+			count++;
+			if (outPort.isConnected()) {
+				outPort.send(p);
+			} else {
+				drop(p);
+			}
+			Packet<?> ctp = create(Integer.toString(count));
+			countPort.send(ctp);
+		}
 
-  @Override
-  protected void openPorts() {
-    inPort = openInput("IN");
-    outPort = openOutput("OUT");
-    countPort = openOutput("COUNT");
-  }
+	}
+
+	@Override
+	protected void openPorts() {
+		inPort = openInput("IN");
+		outPort = openOutput("OUT");
+		countPort = openOutput("COUNT");
+	}
 }
