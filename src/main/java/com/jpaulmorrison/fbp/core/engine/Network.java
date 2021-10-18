@@ -41,6 +41,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.jpaulmorrison.fbp.core.components.nodejs.NodeJs;
+
 
 /**
  * The abstract class which all flow networks extend directly or indirectly. A
@@ -193,7 +195,14 @@ public abstract class Network extends Component {
 
     comp.status = StatusValues.NOT_STARTED;
 
-    comp.buildAnnotations();
+    if(tpe.equals(NodeJs.class))
+    {
+    	comp.buildNodeJsMeta();
+    }
+    else
+    {
+    	comp.buildAnnotations();
+    }
 
     return comp;
   }
@@ -933,7 +942,7 @@ public abstract class Network extends Component {
   /**
    * Shuts down the network.
    */
-  void terminate() {
+  public void terminate() {
     terminate(StatusValues.TERMINATED);
   }
 
