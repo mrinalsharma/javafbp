@@ -35,13 +35,14 @@ public class TestNodeJs extends Network {
 
 	@Override
 	protected void define() {
-		component("TEST_Demo", NodeJs.class);
-		connect(component("Read", ReadFile.class), port("OUT"), component("TEST_Demo"), port("IN"));
-		connect(component("TEST_Demo"), port("OUT"), component("Output", Output.class), port("IN"));
+		component("1234-TEST_Demo", NodeJs.class);
+		connect(component("Read", ReadFile.class), port("OUT"), component("1234-TEST_Demo"), port("IN"));
+		connect(component("1234-TEST_Demo"), port("OUT"), component("Output", Output.class), port("IN"));
 		initialize(
 				System.getProperty("user.dir") + File.separator
 						+ "src/main/resources/testdata/testdata.txt".replace("/", File.separator),
 				component("Read"), port("SOURCE"));
+		initialize("abcde",	component("1234-TEST_Demo"), port("OPTIONS_NEW"));
 		// initialize("function execute(param) {return param + \"hello\";}",
 		// component("JavaScriptV8Runtime"), port("CODE"));
 	}

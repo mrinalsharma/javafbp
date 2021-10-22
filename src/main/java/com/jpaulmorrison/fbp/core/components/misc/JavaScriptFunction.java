@@ -1,9 +1,8 @@
 package com.jpaulmorrison.fbp.core.components.misc;
 
+import org.json.JSONObject;
+
 import com.eclipsesource.v8.V8;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 import com.jpaulmorrison.fbp.core.engine.Component;
 import com.jpaulmorrison.fbp.core.engine.ComponentDescription;
 import com.jpaulmorrison.fbp.core.engine.InPort;
@@ -31,9 +30,8 @@ public class JavaScriptFunction extends Component {
 		if (rp == null) {
 			return;
 		}
-		JsonObject object = JsonParser.parseString((String) rp.getContent()).getAsJsonObject();
-		JsonPrimitive jsonFunctionBody = object.getAsJsonPrimitive("function");
-		String body = jsonFunctionBody.getAsString();
+		JSONObject object = new JSONObject((String) rp.getContent());
+		String body = object.getString("function");
 		String function = createJavascriptFunction(body);
 		drop(rp);
 		Packet ip = inport.receive();

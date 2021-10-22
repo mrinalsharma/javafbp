@@ -27,10 +27,8 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpaulmorrison.fbp.core.engine.*;
 
 /**
@@ -54,14 +52,14 @@ public class MqttIn extends Component {
 
 	@Override
 	protected void execute() {
-		CountDownLatch latch = new CountDownLatch(1);
-		Gson gson = new Gson();
-		Packet<?> optp = optionsPort.receive();
-		MqttOptions options = gson.fromJson((String) optp.getContent(), MqttOptions.class);
-		String broker = "tcp://" + options.getServer() + ":" + options.getPort();
-		String clientId = options.getClientId();
-		drop(optp);
 		try {
+			CountDownLatch latch = new CountDownLatch(1);
+			ObjectMapper mapper = new ObjectMapper();
+			Packet<?> optp = optionsPort.receive();
+			MqttOptions options = mapper.readValue((String) optp.getContent(), MqttOptions.class);
+			String broker = "tcp://" + options.getServer() + ":" + options.getPort();
+			String clientId = options.getClientId();
+			drop(optp);
 			MqttClient client = new MqttClient(broker, clientId, null);
 			MqttConnectOptions connOpts = new MqttConnectOptions();
 			connOpts.setCleanSession(options.getUseCleanSession());
@@ -104,8 +102,7 @@ public class MqttIn extends Component {
 			 * MqttMessage message = new MqttMessage(content.getBytes());
 			 * message.setQos(qos); sampleClient.publish(topic, message);
 			 */
-		} catch (MqttException me) {
-			System.out.println("reason " + me.getReasonCode());
+		} catch (MqttException | JsonProcessingException me) {
 			System.out.println("msg " + me.getMessage());
 			System.out.println("cause " + me.getCause());
 		}

@@ -35,8 +35,15 @@ public class TestNodeJsHttpServer extends Network {
 
 	@Override
 	protected void define() {
-		component("TEST_HTTPServer", NodeJs.class);
-		connect(component("TEST_HTTPServer"), port("OUT"), component("Output", Output.class), port("IN"));
+		component("1234-TEST_HTTPServer", NodeJs.class);
+		connect(component("1234-TEST_HTTPServer"), port("OUT"), component("Output", Output.class), port("IN"));
+		initialize("{\n"
+				+ "  \"host1\": \"localhost\",\n"
+				+ "  \"port1\": \"8981\",\n"
+				+ "  \"host2\": \"localhost\",\n"
+				+ "  \"port2\": \"8982\"\n"
+				+ "  \n"
+				+ "}",	component("1234-TEST_HTTPServer"), port("OPTIONS"));
 		/*
 		 * initialize( System.getProperty("user.dir") + File.separator +
 		 * "src/main/resources/testdata/testdata.txt".replace("/", File.separator),

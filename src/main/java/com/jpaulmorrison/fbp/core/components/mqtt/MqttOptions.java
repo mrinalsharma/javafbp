@@ -1,7 +1,5 @@
 package com.jpaulmorrison.fbp.core.components.mqtt;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
 /**
  * MQTT In
@@ -11,48 +9,21 @@ import com.google.gson.annotations.SerializedName;
  */
 public class MqttOptions {
 
-	@SerializedName("Server")
-	@Expose
 	private String server = "localhost";
-	@SerializedName("Port")
-	@Expose
 	private int port = 1883;
-	@SerializedName("Protocol")
-	@Expose
 	private String protocol = "MQTTV3.1.1";
-	@SerializedName("ClientId")
-	@Expose
 	private String clientId = "localhost";
-	@SerializedName("KeepAlive")
-	@Expose
 	private int keepAlive = 60;
-	@SerializedName("UserName")
-	@Expose
 	private String userName = "localhost";
-	@SerializedName("Password")
-	@Expose
 	private String password = "localhost";
-	@SerializedName("TLS")
-	@Expose
 	private Boolean tls;
-	@SerializedName("Certificate")
-	@Expose
 	private String certificate = "";
-	@SerializedName("PrivateKey")
-	@Expose
 	private String privateKey = "";
-	@SerializedName("CACertificate")
-	@Expose
 	private String caCertificate = "";
-	@SerializedName("Topic")
-	@Expose
 	private String topic = "";
-	@SerializedName("QOS")
-	@Expose
 	private int qos = 2;
-	@SerializedName("Use Clean Session")
-	@Expose
 	private Boolean useCleanSession = false;
+	
 	public String getServer() {
 		return server;
 	}

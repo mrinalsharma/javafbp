@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "type": "object",
+    "oneOf": [
+      {
+        "title": "Firing Date-Time",
+        "properties": {
+          "Fire At": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "Fire At"
+        ]
+      },
+      {
+        "title": "Repeat",
+        "properties": {
+          "Repeat": {
+            "type": "integer",
+            "default": "2000",
+            "format": "date-time",
+            "description": "Provide values in seconds"
+          }
+        },
+        "required": [
+          "Repeat"
+        ]
+      }
+    ]
+  },
+  "uiSchema": {}
+}

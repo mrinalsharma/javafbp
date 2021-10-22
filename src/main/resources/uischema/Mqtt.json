@@ -1,0 +1,86 @@
+{
+	"title": "MQTT In",
+	"type": "object",
+	"properties": {
+		"Server": {
+			"type": "string",
+			"default": "localhost"
+		},
+		"Port": {
+			"type": "number",
+			"default": 1883
+		},
+		"Protocol": {
+			"enum": ["MQTTV3.1.1", "MQTTV5", "MQTTV3.1"],
+			"default": "MQTTV3.1.1"
+		},
+		"ClientId": {
+			"type": "string",
+			"default": "flow-client"
+		},
+		"KeepAlive": {
+			"type": "number",
+			"default": 60
+		},
+		"UserName": {
+			"type": "string",
+			"default": ""
+		},
+		"Password": {
+			"type": "string",
+			"default": ""
+		},
+		"QOS": {
+			"type": "number",
+			"default": 2
+		},
+		"Topic": {
+			"type": "string",
+			"default": "example"
+		},
+		"TLS": {
+			"type": "boolean",
+      "default": false
+		},
+		"Use Clean Session": {
+			"type": "boolean"
+		}
+	},
+	"required": ["Server","ClientId","Topic"],
+	"dependencies": {
+		"TLS": {
+			"oneOf": [
+				{
+					"properties": {
+						"TLS": {"enum": [false]}
+					}
+				},
+				{
+					"properties": {
+						"TLS": {"enum": [true]},
+						"Certificate": {
+							"type": "string",
+							"format": "data-url",
+							"title": "Single file"
+						},
+						"PrivateKey": {
+							"type": "string",
+							"format": "data-url",
+							"title": "Single file"
+						},
+						"CACertificate": {
+							"type": "string",
+							"format": "data-url",
+							"title": "Single file"
+						}
+					},
+					"required": [
+						"Certificate",
+						"PrivateKey",
+						"CACertificate"
+					]
+				}
+			]
+		}
+	}
+}

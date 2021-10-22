@@ -14,6 +14,7 @@ import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.interop.NodeRuntime;
 import com.caoccao.javet.interop.engine.IJavetEngine;
 import com.caoccao.javet.interop.engine.JavetEnginePool;
+import com.caoccao.javet.values.V8Value;
 import com.caoccao.javet.values.primitive.V8ValueString;
 import com.caoccao.javet.values.reference.V8ValueObject;
 import com.caoccao.javet.values.reference.V8ValuePromise;
@@ -41,12 +42,14 @@ public class NodeJs extends Component {
 	private NodeRuntime nodeRuntime;
 	private JavetEnginePool<NodeRuntime> javetEnginePool = null;
 	private IJavetEngine<NodeRuntime> iJavetEngine = null;
+	private V8ValuePromise v8ValuePromise = null;
 	private OutputPort outport;
 	private NodeJsMeta nodeJsMeta = null;
 	private Map<String, String> iipData = new HashMap();
 	private NodeJSEventLoopThread nodeJSEventLoopThread = null;
 	private ProcessIncomingData processIncomingData = null;
-	private CountDownLatch start = new CountDownLatch(1);  
+	private CountDownLatch start = new CountDownLatch(1);
+	private final long delay = 20;
 	static String EXAMPLE_NODE_SCRIPT = "var http = require('http');\n" + ""
 			+ "var server = http.createServer(function (request, response) {\n"
 			+ " response.writeHead(200, {'Content-Type': 'text/plain'});\n" + " response.end(someJavaMethod());\n"
@@ -56,9 +59,10 @@ public class NodeJs extends Component {
 			+ "exports.handleIP = handleIP;";
 
 	@V8Function(name = "send")
-	public void send(String portName, String payload) {
+	public void send(String portName, V8Value payload) {
+		System.out.println("[INFO " +Thread.currentThread().getName()+ "] "+" Received payload to send : "+ payload);
 		outport = openOutput(portName);
-		outport.send(create(payload));
+		outport.send(create(payload.toString()));
 	}
 
 	@V8Function(name = "log")
@@ -67,7 +71,7 @@ public class NodeJs extends Component {
 		for (String message : messages) {
 			builder.append(message);
 		}
-		System.out.println("[INFO] " + builder.toString());
+		System.out.println("[INFO " +Thread.currentThread().getName()+ "] " + builder.toString());
 	}
 
 	@V8Function(name = "error")
@@ -91,6 +95,12 @@ public class NodeJs extends Component {
 
 	private void waitForEnd_ProcessIncomingData_Thread() {
 		while (true) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				Thread.currentThread().interrupt();
+			}
 			if (Thread.interrupted() || !processIncomingData.isAlive()) {
 				processIncomingData.interrupt();
 				nodeJSEventLoopThread.interrupt();
@@ -147,59 +157,75 @@ public class NodeJs extends Component {
 		public ProcessIncomingData(HashMap<String, InputPort> inputPorts) {
 			super();
 			this.inputPorts = inputPorts;
+			this.setName(NodeJs.this.getName() + "ProcessIncomingData");
 		}
 
 		@Override
 		public void run() {
 			Map<String, InputPort> inputPorts = this.inputPorts.values().stream().filter(p -> {
 				return nodeJsMeta.getInPorts().get(p.getName().substring(p.getName().lastIndexOf(".") + 1))
-						.isIIP() == false;
+						.isIIP() == false && !p.isClosed();
 			}).collect(Collectors.toMap(p -> p.getName().substring(p.getName().lastIndexOf(".") + 1), p -> p));
 			InputPort ports[] = new InputPort[inputPorts.size()];
-			while (true) {
+			int portIndex = -1;
+			try {
+				while (true) {
 
-				int portIndex;
-				try {
-					portIndex = findInputPortElementWithData(
-							(new ArrayList<InputPort>(inputPorts.values())).toArray(ports));
-
-					if (portIndex != -1) {
-						InputPort port = ports[portIndex];
-						String portDisplayName = port.getName();
-						String portName = portDisplayName.substring(portDisplayName.lastIndexOf(".") + 1);
-						Packet packet =  port.receive();
-						comp.invoke("handleIP", portName, packet.getContent());
-						drop(packet);
-					}
-					if (Thread.interrupted() || (!nodeJsMeta.isKeepRunning() && portIndex == -1)) {
-						V8ValuePromise v8ValuePromise = comp.invoke("stop");
-						while (v8ValuePromise.getState() == v8ValuePromise.STATE_PENDING) {
-							Thread.sleep(1000);
-						}
-						comp.close();
-						v8ValueObject.unbind(NodeJs.this);
-						v8ValuePromise.close();
-						v8ValueObject.close();
-						nodeRuntime.resetContext();
-						iJavetEngine.close();
-						break;
-					}
-				} catch (InterruptedException | JavetException e1) {
 					try {
-						V8ValuePromise v8ValuePromise = comp.invoke("stop");
-						while (v8ValuePromise.getState() == v8ValuePromise.STATE_PENDING) {
-							System.out.println("Promise State: " + v8ValuePromise.getState());
+						portIndex = findInputPortElementWithData(
+								(new ArrayList<InputPort>(inputPorts.values())).toArray(ports));
+
+						if (portIndex != -1) {
+							InputPort port = ports[portIndex];
+							String portDisplayName = port.getName();
+							String portName = portDisplayName.substring(portDisplayName.lastIndexOf(".") + 1);
+							Packet packet = port.receive();
+							comp.invoke("handleIP", portName, packet.getContent());
+							drop(packet);
+						} else {
+							Thread.sleep(300);
 						}
-						comp.close();
-						v8ValueObject.unbind(NodeJs.this);
-						v8ValuePromise.close();
-						v8ValueObject.close();
-						nodeRuntime.resetContext();
-						iJavetEngine.close();
-					} catch (JavetException e) {
-						e.printStackTrace();
+						if (Thread.interrupted() || (!nodeJsMeta.isKeepRunning() && portIndex == -1)) {
+							V8ValuePromise v8ValuePromise = comp.invoke("stop");
+							long elapsedTime = 0;
+							int state = v8ValuePromise.getState();
+							while (state == v8ValuePromise.STATE_PENDING && elapsedTime <= delay) {
+								Thread.sleep(1000);
+								elapsedTime++;
+								break;
+							}
+							break;
+							
+						}
+					} catch (InterruptedException | JavetException e1) {
+						try {
+							long elapsedTime = 0;
+							V8ValuePromise v8ValuePromise = comp.invoke("stop");
+							while (v8ValuePromise.getState() == v8ValuePromise.STATE_PENDING && elapsedTime <= delay) {
+								System.out.println("Promise State: " + v8ValuePromise.getState());
+								Thread.sleep(1000);
+								elapsedTime++;
+								Thread.currentThread().interrupt();
+								break;
+							}
+							break;
+						} catch (JavetException | InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 				}
+			} finally {
+				try {
+					/*
+					 * comp.close(); v8ValueObject.unbind(NodeJs.this); if (v8ValuePromise != null)
+					 * v8ValuePromise.close(); v8ValueObject.close();
+					 */
+					nodeRuntime.resetContext();
+					iJavetEngine.close();
+				} catch (JavetException e) {
+					e.printStackTrace();
+				}
+
 			}
 		}
 
@@ -211,6 +237,7 @@ public class NodeJs extends Component {
 		public NodeJSEventLoopThread(HashMap<String, InputPort> inputPorts) {
 			super();
 			this.inputPorts = inputPorts;
+			this.setName(NodeJs.this.getName() + "NodeJSEventLoopThread");
 		}
 
 		@Override
@@ -220,8 +247,13 @@ public class NodeJs extends Component {
 				Map<String, String> iipPorts = this.inputPorts.values().stream().filter(p -> {
 					return nodeJsMeta.getInPorts().get(p.getName().substring(p.getName().lastIndexOf(".") + 1))
 							.isIIP() == true;
-				}).collect(Collectors.toMap(p -> p.getName().substring(p.getName().lastIndexOf(".") + 1),
-						p -> p.receive() == null ? "{}" : p.receive().getContent().toString()));
+				}).collect(Collectors.toMap(p -> p.getName().substring(p.getName().lastIndexOf(".") + 1), p -> 
+				{
+					Packet pac = p.receive();
+					String iipData = pac.getContent().toString();
+					drop(pac);
+					return pac == null ? "{}" : pac.getContent().toString();
+				}));
 				if (iipPorts.size() > 0) {
 					ObjectMapper mapper = new ObjectMapper();
 					try {
@@ -247,8 +279,7 @@ public class NodeJs extends Component {
 				}
 			} catch (JavetException e) {
 				e.printStackTrace();
-			}
-			finally {
+			} finally {
 				start.countDown();
 			}
 		}

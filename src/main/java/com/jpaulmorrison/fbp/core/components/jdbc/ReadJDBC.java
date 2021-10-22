@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.sql.*;
 import java.util.HashMap;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpaulmorrison.fbp.core.engine.Component; // Using 'Connection', 'Statement' and 'ResultSet' classes in java.sql package
 import com.jpaulmorrison.fbp.core.engine.ComponentDescription;
 import com.jpaulmorrison.fbp.core.engine.InPort;
@@ -78,9 +78,8 @@ public class ReadJDBC extends Component {
 		drop(pp);
 		fldsPort.close();
 
-		Gson gson = new Gson();
-		
-		FieldInfo[] fiArray = gson.fromJson(fldsStr, FieldInfo[].class);
+		ObjectMapper mapper = new ObjectMapper();
+		FieldInfo[] fiArray = mapper.readerForListOf(FieldInfo[].class).readValue(fldsStr);
 
 		try (
 

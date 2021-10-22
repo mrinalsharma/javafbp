@@ -3,9 +3,8 @@ package com.jpaulmorrison.fbp.core.components.misc;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import org.json.JSONObject;
+
 import com.jpaulmorrison.fbp.core.engine.Component;
 import com.jpaulmorrison.fbp.core.engine.ComponentDescription;
 import com.jpaulmorrison.fbp.core.engine.InPort;
@@ -33,11 +32,11 @@ public class Trigger extends Component {
 		if (rp == null) {
 			return;
 		}
-		JsonObject timerOptions = JsonParser.parseString((String) rp.getContent()).getAsJsonObject();
+		JSONObject timerOptions = (JSONObject) rp.getContent();
 
 		drop(rp);
 		time.close();
-		if (timerOptions.isJsonObject()) {
+		if (timerOptions != null) {
 			timerThread = new TimerThread(timerOptions);
 			timerThread.start();
 		}
@@ -53,10 +52,10 @@ public class Trigger extends Component {
 	}
 
 	class TimerThread extends Thread {
-		private JsonObject timerOptions;
+		private JSONObject timerOptions;
 		Timer timer;
 
-		public TimerThread(JsonObject timerOptions) {
+		public TimerThread(JSONObject timerOptions) {
 			super("TimerThread");
 			this.timerOptions = timerOptions;
 		}
@@ -70,9 +69,9 @@ public class Trigger extends Component {
 
 		@Override
 		public void run() {
-			JsonPrimitive jsonRepeat = timerOptions.getAsJsonPrimitive("Repeat");
+			JSONObject jsonRepeat = timerOptions;
 			if (jsonRepeat != null) {
-				long repeat = jsonRepeat.getAsLong();
+				long repeat = jsonRepeat.getLong("Repeat");
 				TimerTask task = new TimerTask() {
 					public void run() {
 						try {

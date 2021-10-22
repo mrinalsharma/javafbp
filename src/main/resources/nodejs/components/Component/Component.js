@@ -1,9 +1,9 @@
 var ports = require('./Ports')
 var process = require('process')
 
-/* process.on('uncaughtException', err => {
-  console.error('There was an uncaught error');
-}) */
+process.on('uncaughtException', err => {
+  console.error('There was an uncaught error',err.toString());
+}) 
 
 process.on('unhandledRejection', (reason, promise) => {
   console.log('Unhandled Rejection at:', 'reason:');
