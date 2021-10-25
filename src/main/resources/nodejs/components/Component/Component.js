@@ -6,7 +6,7 @@ process.on('uncaughtException', err => {
 }) 
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.log('Unhandled Rejection at:', 'reason:');
+  console.log('Unhandled Rejection at:', reason.toString());
 });
 
 'use strict';
