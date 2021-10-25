@@ -154,7 +154,7 @@ final public class FlowRuntime {
 							String className = flowJar.getName().replaceAll("/", "\\.");
 							String someFbpClass = className.substring(0, className.lastIndexOf('.'));
 							Class clas = Class.forName(someFbpClass);
-							if (Component.class.isAssignableFrom(clas)) {
+							if (Component.class.isAssignableFrom(clas) && !Network.class.isAssignableFrom(clas)) {
 								classes.add(clas);
 							}
 						}
