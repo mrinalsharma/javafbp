@@ -277,7 +277,12 @@ public class NodeJs extends Component {
 						return;
 					}
 				}
-			} catch (JavetException e) {
+				while(true)
+				{
+					nodeRuntime.await();
+					Thread.sleep(10);
+				}
+			} catch (JavetException | InterruptedException e) {
 				e.printStackTrace();
 			} finally {
 				start.countDown();

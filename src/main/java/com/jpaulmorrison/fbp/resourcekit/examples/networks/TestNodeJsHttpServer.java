@@ -71,7 +71,7 @@ public class TestNodeJsHttpServer extends Network {
 
 			@Override
 			public void run() {
-				for (int time = 0; time < 20; time++) {
+				for (int time = 0; time < 100; time++) {
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
