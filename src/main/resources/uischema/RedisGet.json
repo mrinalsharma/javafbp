@@ -1,0 +1,66 @@
+{
+	"schema": {
+		"title": "Redis Form",
+		"type": "object",
+		"properties": {
+			"host": {
+				"title": "HOST",
+				"type": "string",
+				"default": "localhost"
+			},
+			"port": {
+				"title": "PORT",
+				"type": "integer",
+				"default": 6379
+			},
+			"username": {
+				"title": "UserName",
+				"type": "string",
+				"default": ""
+			},
+			"password": {
+				"title": "Password",
+				"type": "string",
+				"default": ""
+			},
+			"connectWithUrl": {
+				"title": "Connect With Url",
+				"type": "boolean",
+				"default": false
+			}
+		},
+		"dependencies": {
+			"connectWithUrl": {
+				"oneOf": [
+					{
+						"properties": {
+							"connectWithUrl": {
+								"enum": [
+									false
+								]
+							}
+						}
+					},
+					{
+						"properties": {
+							"connectWithUrl": {
+								"enum": [
+									true
+								]
+							},
+							"URL": {
+								"type": "string",
+								"title": " Redis server connection URI",
+								"default": "redis://localhost:6379",
+								"description": "The URL of the Redis server. Format: [redis[s]:]//[[user][:password@]][host][:port][/db-number][?db=db-number[&password=bar[&option=value]]] (More info avaliable at IANA)."
+							}
+						},
+						"required": [
+							"URL"
+						]
+					}
+				]
+			}
+		}
+	}
+}

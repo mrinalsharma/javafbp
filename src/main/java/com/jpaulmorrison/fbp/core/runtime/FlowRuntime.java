@@ -263,6 +263,7 @@ final public class FlowRuntime {
 						value.close();
 						comp.close();
 						obj.close();
+						nodeRuntime.resetContext();
 					}
 					jsonComponents.sort(new Comparator<JSONObject>() {
 
@@ -382,7 +383,44 @@ final public class FlowRuntime {
 				portInfo.put("addressable", entry.getValue().isAddressable());
 				portInfo.put("required", entry.getValue().isRequired());
 				portInfo.put("isIIP", entry.getValue().isIIP());
-				portInfo.put("uiSchema", entry.getValue().getSchema());
+				if (entry.getValue().getSchema().endsWith("json")) {
+					ClassLoader classLoader = getClass().getClassLoader();
+					URL resource = classLoader.getResource("uischema/" + entry.getValue().getSchema());
+					if (resource == null) {
+						throw new IllegalArgumentException("file not found! " + entry.getValue().getSchema());
+					} else {
+
+						// failed if files have whitespaces or special characters
+						// return new File(resource.getFile());
+
+						try {
+							Path path = null;
+							String jsonData = null;
+							if (resource.getProtocol().equals("jar")) {
+								InputStream isJSON = resource.openStream();
+								BufferedReader reader = new BufferedReader(new InputStreamReader(isJSON));
+								String strCurrentLine;
+								StringBuffer jsonDataBuilder = new StringBuffer();
+								while ((strCurrentLine = reader.readLine()) != null) {
+									jsonDataBuilder.append(strCurrentLine);
+								}
+								jsonData = jsonDataBuilder.toString();
+							} else {
+								path = Paths.get(new File(resource.toURI()).getAbsolutePath());
+								jsonData = Files.readString(path);
+							}
+							portInfo.put("uiSchema", jsonData);
+						} catch (IOException | URISyntaxException e) {
+							System.out.println(
+									"Error" + e.getMessage() + " happened while reading file " + entry.getValue().getSchema());
+						}
+					}
+
+				}
+				else
+				{
+					portInfo.put("uiSchema", entry.getValue().getSchema());
+				}
 				inPorts.put(portInfo);
 			}
 			def.put("inPorts", inPorts);
@@ -571,7 +609,7 @@ final public class FlowRuntime {
 						addInitial(tgt.getString("process"), tgt.getString("port"), conn.getString("data"));
 					} catch (JSONException e) {
 						// Try fetching the data as JSON Object
-						addInitial(tgt.getString("process"), tgt.getString("port"), conn.getJSONObject("data"));
+						addInitial(tgt.getString("process"), tgt.getString("port"), conn.getJSONObject("data").toString());
 					}
 				} else {
 					addEdge(src.getString("process"), src.getString("port"), tgt.getString("process"),

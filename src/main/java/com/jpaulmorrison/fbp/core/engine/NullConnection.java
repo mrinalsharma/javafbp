@@ -22,7 +22,7 @@ package com.jpaulmorrison.fbp.core.engine;
 /** This is used in a network definition when a port is not connected
 */
 
-final class NullConnection implements InputPort {
+public final class NullConnection implements InputPort {
 
  ;
   NullConnection() {

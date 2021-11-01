@@ -23,10 +23,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpaulmorrison.fbp.core.engine.Component;
 import com.jpaulmorrison.fbp.core.engine.ComponentDescription;
+import com.jpaulmorrison.fbp.core.engine.Connection;
 import com.jpaulmorrison.fbp.core.engine.InPort;
 import com.jpaulmorrison.fbp.core.engine.InPorts;
 import com.jpaulmorrison.fbp.core.engine.InputPort;
 import com.jpaulmorrison.fbp.core.engine.NodeJsMeta;
+import com.jpaulmorrison.fbp.core.engine.NullConnection;
 import com.jpaulmorrison.fbp.core.engine.OutPort;
 import com.jpaulmorrison.fbp.core.engine.OutPorts;
 import com.jpaulmorrison.fbp.core.engine.OutputPort;
@@ -164,7 +166,7 @@ public class NodeJs extends Component {
 		public void run() {
 			Map<String, InputPort> inputPorts = this.inputPorts.values().stream().filter(p -> {
 				return nodeJsMeta.getInPorts().get(p.getName().substring(p.getName().lastIndexOf(".") + 1))
-						.isIIP() == false && !p.isClosed();
+						.isIIP() == false && !(p instanceof NullConnection);
 			}).collect(Collectors.toMap(p -> p.getName().substring(p.getName().lastIndexOf(".") + 1), p -> p));
 			InputPort ports[] = new InputPort[inputPorts.size()];
 			int portIndex = -1;
@@ -199,6 +201,7 @@ public class NodeJs extends Component {
 						}
 					} catch (InterruptedException | JavetException e1) {
 						try {
+							e1.printStackTrace();
 							long elapsedTime = 0;
 							V8ValuePromise v8ValuePromise = comp.invoke("stop");
 							while (v8ValuePromise.getState() == v8ValuePromise.STATE_PENDING && elapsedTime <= delay) {

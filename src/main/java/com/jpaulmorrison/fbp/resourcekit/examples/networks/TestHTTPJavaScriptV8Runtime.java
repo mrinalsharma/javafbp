@@ -31,63 +31,24 @@ import com.jpaulmorrison.fbp.core.engine.Network;
  * Read file; write to other file
  * 
  */
-public class TestNodeJsHttpServer extends Network {
+public class TestHTTPJavaScriptV8Runtime extends Network {
 
 	@Override
 	protected void define() {
 		component("1234-HTTPPostServer", NodeJs.class);
-		connect(component("1234-HTTPPostServer"), port("OUT"), component("Output", Output.class), port("IN"));
-		initialize("{\n"
-				+ "  \"host1\": \"localhost\",\n"
-				+ "  \"port1\": \"8981\",\n"
-				+ "  \"host2\": \"localhost\",\n"
-				+ "  \"port2\": \"8982\", \n"
-				+ "  \"URI\": \"/subscribe\"\n"
-				+ "  \n"
-				+ "}",	component("1234-HTTPPostServer"), port("OPTIONS"));
-		/*
-		 * initialize( System.getProperty("user.dir") + File.separator +
-		 * "src/main/resources/testdata/testdata.txt".replace("/", File.separator),
-		 * component("Read"), port("SOURCE"));
-		 */
-		// initialize("function execute(param) {return param + \"hello\";}",
-		// component("JavaScriptV8Runtime"), port("CODE"));
+		component("JavaScriptV8Runtime", JavaScriptFunction.class);
+		component("Output", Output.class);
+		connect(component("1234-HTTPPostServer"), port("OUT"), component("JavaScriptV8Runtime"), port("IN"));
+		connect(component("JavaScriptV8Runtime"), port("OUT"), component("Output"), port("IN"));
+		initialize(
+				"{\n" + "  \"host1\": \"localhost\",\n" + "  \"port1\": \"8981\",\n" + "  \"host2\": \"localhost\",\n"
+						+ "  \"port2\": \"8982\", \n" + "  \"URI\": \"/subscribe?a=b\"\n" + "  \n" + "}",
+				component("1234-HTTPPostServer"), port("OPTIONS"));
+		initialize("{\n" + "  \"function\": \"return  payload + 'hello';\"\n" + "}", component("JavaScriptV8Runtime"),
+				port("CODE"));
 	}
 
 	public static void main(final String[] argv) throws Throwable {
-		TestNodeJsHttpServer httpServer = new TestNodeJsHttpServer();
-		Thread runNetwork = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				try {
-					httpServer.go();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-			}
-		});
-		Thread exitThread = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				for (int time = 0; time < 100; time++) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-
-				runNetwork.interrupt();
-			}
-		});
-
-		runNetwork.start();
-		exitThread.start();
-		runNetwork.join();
-		exitThread.join();
-
+		new TestHTTPJavaScriptV8Runtime().go();
 	}
 }

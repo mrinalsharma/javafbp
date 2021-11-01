@@ -32,7 +32,8 @@ public class Trigger extends Component {
 		if (rp == null) {
 			return;
 		}
-		JSONObject timerOptions = (JSONObject) rp.getContent();
+
+		JSONObject timerOptions = new JSONObject((String) rp.getContent());;
 
 		drop(rp);
 		time.close();

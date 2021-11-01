@@ -1,4 +1,5 @@
 var http = require('http');
+const url = require('url');
 var dt = require(process.env.FLOW_NODE_DIR + '\\Component');
 let server = null;
 let server2 = null;
@@ -13,23 +14,18 @@ getComponent = () => {
         "properties": {
           "host1": {
             "type": "string",
-            "title": "Hostname1",
+            "title": "Hostname",
             "description": "Hostname where server is executing."
           },
           "port1": {
             "type": "string",
-            "title": "Port1",
+            "title": "Port",
             "description": "Port naumber where server will listen."
           },
-          "host2": {
+          "URI": {
             "type": "string",
-            "title": "Hostname2",
-            "description": "Hostname where server is executing."
-          },
-          "port2": {
-            "type": "string",
-            "title": "Port2",
-            "description": "Port naumber where server will listen."
+            "title": "URI",
+            "description": "Resource URI."
           }
         }
       }
@@ -40,25 +36,30 @@ getComponent = () => {
   c.isSubgraph = false;
   c.icon = "my icon";
   c.description = "demo description hahahah";
-  c.componentName = "TEST_HTTPServer";
+  c.componentName = "HTTPPostServer";
   c.setKeepRunning(true);
   c.setStart((iipData) => {
     console.log(JSON.stringify(iipData));
     iipData = JSON.parse(iipData.OPTIONS)
-    console.log(iipData.host1);
     const host1 = iipData.host1;
     const port1 = iipData.port1;
-    const host2 = iipData.host2;
-    const port2 = iipData.port2;
+    const uri =   iipData.URI;
     const requestListener = function (req, res) {
-      if (req.method === 'POST') {
-        let body = '';
+      var request = {
+        headers:new Map(),
+        body:'',
+        queryParams:new Map(),
+      };
+      
+      if (req.method === 'POST' && req.url.includes(uri)) {
+        request.headers = req.headers;
+        request.queryParams = url.parse(req.url,true).query;
         req.on('data', chunk => {
-          body += chunk.toString(); // convert Buffer to string
+          request.body += chunk.toString(); // convert Buffer to string
         });
         req.on('end', () => {
           new Promise((resolve, reject) => {
-            if (body != null) {
+            if (request.body != null) {
               resolve("SUCCESS");
             }
             else {
@@ -67,44 +68,31 @@ getComponent = () => {
           }).then(status => {
             console.log("Send data ", status);
             outPort = c.getOutPort("OUT");
-            outPort.send(body);
+            outPort.send(JSON.stringify(request));
           }).catch(status => { console.log("Send data ", status); });
-          res.end("My first flow Node server!");
+          res.end("CREATED");
         });
       } else {
-        res.writeHead(200);
-        res.end("My first flow Node server!");
+        res.statusCode = 404;
+        res.end("Resource not found!");
       }
 
     };
     server = http.createServer(requestListener);
-    console.log("Server1 to listen on ", iipData.host1, ":", iipData.port1);
+    console.log("Server to listen on ", iipData.host1, ":", iipData.port1);
     server.listen(port1, host1, () => {
       console.log(`Server is running on http://${host1}:${port1}`);
     });
-    console.log("Started.1");
-    server2 = http.createServer(requestListener);
-    console.log("Server2 to listen on ", iipData.host2, ":", iipData.port2);
-    server2.listen(port2, host2, () => {
-      console.log(`Server is running on http://${host2}:${port2}`);
-    });
-    console.log("Started.2");
+    console.log("Started");
   })
 
   c.setStop(() => {
     return new Promise((resolve, reject) => {
       server.close((err) => {
-        console.log("server 1 stopped");
+        console.log("server stopped");
         resolve("SUCCESS");
       })
-    }).then(() => {
-      return new Promise((resolve, reject) => {
-        server2.close((err) => {
-          console.log("server 2 stopped");
-          resolve("SUCCESS2");
-        })
-      })
-    });
+    })
   })
 
   return c.process((c, port, payload) => {

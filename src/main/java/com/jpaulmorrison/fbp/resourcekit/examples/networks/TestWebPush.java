@@ -18,33 +18,41 @@
 
 package com.jpaulmorrison.fbp.resourcekit.examples.networks;
 
-import java.io.File;
-
-import com.jpaulmorrison.fbp.core.components.io.ReadFile;
-import com.jpaulmorrison.fbp.core.components.io.WriteFile;
-import com.jpaulmorrison.fbp.core.components.misc.JavaScriptFunction;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jpaulmorrison.fbp.core.components.misc.GenerateCustomTestData;
 import com.jpaulmorrison.fbp.core.components.nodejs.NodeJs;
-import com.jpaulmorrison.fbp.core.components.routing.Output;
 import com.jpaulmorrison.fbp.core.engine.Network;
 
 /**
  * Read file; write to other file
  * 
  */
-public class TestNodeJsHttpServer extends Network {
-
+public class TestWebPush extends Network {
+	private final String subscription  = "{\n"
+			+ "\"sub\":{\n"
+			+ "    \"endpoint\": \"https://fcm.googleapis.com/fcm/send/eYAaLckNNSo:APA91bF68lSHpvCWrf7vG1Qo-W-qIOt8P6VqXDy3M3S0-oHxqa3mV_sTkK_AwM6OwSVRks4DIPXLfu-DXeAi95hiCVB4h5cF1JC7dW3NdDa1El0kF0veoZ38K7wcY2HYRxPA7eageKd0\",\n"
+			+ "    \"expirationTime\": null,\n"
+			+ "    \"keys\": {\n"
+			+ "        \"p256dh\": \"BIgUAE_GE9TobV9EiIQSSSuqQDP-mkAIuKPlM30eugZf21gQYU6zEpM3wpl7Qc_BkA7Wu6U3M1xPdpIDiVCEX9o\",\n"
+			+ "        \"auth\": \"cLVdVbstLd7qDUkmjf-EKA\"\n"
+			+ "    }\n"
+			+ "},\n"
+			+ "\"msg\":\"Hello from Flow\"\n"
+			+ "}";
+	private final String vapidKeys = "{\n"
+			+ "  \"vapiPublicKey\": \"BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U\",\n"
+			+ "  \"vapiPrivateKey\": \"UUxI4O8-FbRouAevSmBQ6o18hgE4nSG3qwvJTfKc-ls\",\n"
+			+ "  \"firebaseApiKey\": \"AIzaSyAq_xyQyvysD-dqO64teCLMa29q_rszA6s\"\n"
+			+ "}";
 	@Override
 	protected void define() {
-		component("1234-HTTPPostServer", NodeJs.class);
-		connect(component("1234-HTTPPostServer"), port("OUT"), component("Output", Output.class), port("IN"));
-		initialize("{\n"
-				+ "  \"host1\": \"localhost\",\n"
-				+ "  \"port1\": \"8981\",\n"
-				+ "  \"host2\": \"localhost\",\n"
-				+ "  \"port2\": \"8982\", \n"
-				+ "  \"URI\": \"/subscribe\"\n"
-				+ "  \n"
-				+ "}",	component("1234-HTTPPostServer"), port("OPTIONS"));
+		component("Generate", GenerateCustomTestData.class);
+		component("1234-GoogleWebPush", NodeJs.class);
+		connect(component("Generate"), port("OUT"), component("1234-GoogleWebPush"), port("IN"));
+		ObjectMapper mapper = new ObjectMapper();
+		initialize(subscription, component("Generate"), port("DATA"));
+		initialize(vapidKeys,component("1234-GoogleWebPush"), port("OPTIONS"));
 		/*
 		 * initialize( System.getProperty("user.dir") + File.separator +
 		 * "src/main/resources/testdata/testdata.txt".replace("/", File.separator),
@@ -55,13 +63,13 @@ public class TestNodeJsHttpServer extends Network {
 	}
 
 	public static void main(final String[] argv) throws Throwable {
-		TestNodeJsHttpServer httpServer = new TestNodeJsHttpServer();
+		TestWebPush webPush = new TestWebPush();
 		Thread runNetwork = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 				try {
-					httpServer.go();
+					webPush.go();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

@@ -18,50 +18,46 @@
 
 package com.jpaulmorrison.fbp.resourcekit.examples.networks;
 
-import java.io.File;
-
-import com.jpaulmorrison.fbp.core.components.io.ReadFile;
-import com.jpaulmorrison.fbp.core.components.io.WriteFile;
-import com.jpaulmorrison.fbp.core.components.misc.JavaScriptFunction;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jpaulmorrison.fbp.core.components.misc.GenerateCustomTestData;
 import com.jpaulmorrison.fbp.core.components.nodejs.NodeJs;
-import com.jpaulmorrison.fbp.core.components.routing.Output;
 import com.jpaulmorrison.fbp.core.engine.Network;
 
 /**
  * Read file; write to other file
  * 
  */
-public class TestNodeJsHttpServer extends Network {
+public class TestRedisSet extends Network {
+	private final String url = "{\n"
+			+ "  \"host\": \"localhost\",\n"
+			+ "  \"port\": 6379,\n"
+			+ "  \"username\": \"\",\n"
+			+ "  \"password\": \"noneed\",\n"
+			+ "  \"connectWithUrl\": true,\n"
+			+ "  \"URL\": \"redis://localhost:6379\",\n"
+			+ "  \"ConnectWithUrl\": true,\n"
+			+ "  \"expiresIn\": 60000 \n"
+			+ "}";
+	private final String data = "{\n" + " \"key\":\"123\",\n" + " \"value\":\"Hello from Flow\"\n" + "}";
 
 	@Override
 	protected void define() {
-		component("1234-HTTPPostServer", NodeJs.class);
-		connect(component("1234-HTTPPostServer"), port("OUT"), component("Output", Output.class), port("IN"));
-		initialize("{\n"
-				+ "  \"host1\": \"localhost\",\n"
-				+ "  \"port1\": \"8981\",\n"
-				+ "  \"host2\": \"localhost\",\n"
-				+ "  \"port2\": \"8982\", \n"
-				+ "  \"URI\": \"/subscribe\"\n"
-				+ "  \n"
-				+ "}",	component("1234-HTTPPostServer"), port("OPTIONS"));
-		/*
-		 * initialize( System.getProperty("user.dir") + File.separator +
-		 * "src/main/resources/testdata/testdata.txt".replace("/", File.separator),
-		 * component("Read"), port("SOURCE"));
-		 */
-		// initialize("function execute(param) {return param + \"hello\";}",
-		// component("JavaScriptV8Runtime"), port("CODE"));
+		component("Generate", GenerateCustomTestData.class);
+		component("1234-RedisSet", NodeJs.class);
+		connect(component("Generate"), port("OUT"), component("1234-RedisSet"), port("IN"));
+		ObjectMapper mapper = new ObjectMapper();
+		initialize(data, component("Generate"), port("DATA"));
+		initialize(url, component("1234-RedisSet"), port("OPTIONS"));
 	}
 
 	public static void main(final String[] argv) throws Throwable {
-		TestNodeJsHttpServer httpServer = new TestNodeJsHttpServer();
+		TestRedisSet redisNetwork = new TestRedisSet();
 		Thread runNetwork = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 				try {
-					httpServer.go();
+					redisNetwork.go();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
