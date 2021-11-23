@@ -1,4 +1,3 @@
-var Chain = require('./Chains');
 class Packet {
     constructor() {
         this.attrs = {};
