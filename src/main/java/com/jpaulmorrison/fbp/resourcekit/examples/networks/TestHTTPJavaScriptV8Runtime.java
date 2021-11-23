@@ -32,20 +32,32 @@ import com.jpaulmorrison.fbp.core.engine.Network;
  * 
  */
 public class TestHTTPJavaScriptV8Runtime extends Network {
-
+	private final String url = "{\n"
+			+ "  \"host\": \"localhost\",\n"
+			+ "  \"port\": 6379,\n"
+			+ "  \"username\": \"\",\n"
+			+ "  \"password\": \"noneed\",\n"
+			+ "  \"connectWithUrl\": true,\n"
+			+ "  \"URL\": \"redis://localhost:6379\",\n"
+			+ "  \"ConnectWithUrl\": true,\n"
+			+ "  \"expiresIn\": 60000 \n"
+			+ "}";
 	@Override
 	protected void define() {
 		component("1234-HTTPPostServer", NodeJs.class);
 		component("JavaScriptV8Runtime", JavaScriptFunction.class);
-		component("Output", Output.class);
 		connect(component("1234-HTTPPostServer"), port("OUT"), component("JavaScriptV8Runtime"), port("IN"));
-		connect(component("JavaScriptV8Runtime"), port("OUT"), component("Output"), port("IN"));
+		connect(component("JavaScriptV8Runtime"), port("OUT"), component("1234-RedisSet",  NodeJs.class), port("IN"));
 		initialize(
 				"{\n" + "  \"host1\": \"localhost\",\n" + "  \"port1\": \"8981\",\n" + "  \"host2\": \"localhost\",\n"
 						+ "  \"port2\": \"8982\", \n" + "  \"URI\": \"/subscribe?a=b\"\n" + "  \n" + "}",
 				component("1234-HTTPPostServer"), port("OPTIONS"));
-		initialize("{\n" + "  \"function\": \"return  payload + 'hello';\"\n" + "}", component("JavaScriptV8Runtime"),
+		initialize("{\n"
+				+ "  \"function\":\"return  JSON.stringify({\\\"key\\\":JSON.parse(JSON.parse(payload).body).user, \\\"value\\\": JSON.parse(JSON.parse(payload).body).sub});\"\n"
+				+ "}", component("JavaScriptV8Runtime"),
 				port("CODE"));
+		initialize(url, component("1234-RedisSet"), port("OPTIONS"));
+
 	}
 
 	public static void main(final String[] argv) throws Throwable {

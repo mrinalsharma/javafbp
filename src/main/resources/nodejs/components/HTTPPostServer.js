@@ -66,9 +66,13 @@ getComponent = () => {
               reject("FAILED");
             }
           }).then(status => {
+            let packet = new dt.Packet();
+            packet.addHeader("correlationId","12345678");
+            packet.content = JSON.stringify(request);
             console.log("Send data ", status);
+            console.log("Print Body ", request.body);
             outPort = c.getOutPort("OUT");
-            outPort.send(JSON.stringify(request));
+            outPort.send(JSON.stringify(packet));
           }).catch(status => { console.log("Send data ", status); });
           res.end("CREATED");
         });

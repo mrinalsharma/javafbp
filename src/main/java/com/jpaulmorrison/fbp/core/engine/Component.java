@@ -597,6 +597,17 @@ public abstract class Component extends Thread {
 		network.creates.getAndIncrement();
 		return new Packet(o, this);
 	}
+	
+	/**
+	 * This method creates a new Packet using a type and String, say for brackets
+	 * 
+	 * @return Packet
+	 * @param s java.lang.String
+	 */
+	public Packet create(final Object o, Map<String,Object> attrs) {
+		network.creates.getAndIncrement();
+		return new Packet(o,this,attrs);
+	}
 
 	/**
 	 * Drop Packet and clear owner reference. Note: Java will not reclaim the space

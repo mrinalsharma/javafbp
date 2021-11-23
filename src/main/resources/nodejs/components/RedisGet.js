@@ -5,7 +5,7 @@ var redis = null;
 getComponent = () => {
 
   var c = new dt.Component();
-  c.inPorts.add('OPTIONS', {datatype: 'string', iip: true, schema: "RedisGet.json"});
+  c.inPorts.add('OPTIONS', {datatype: 'object', iip: true, schema: 'RedisGet.json'});
   c.inPorts.add('IN', { datatype: 'string', iip: false });
   c.outPorts.add('OUT',{ datatype: 'string', arrayPort: false, fixedSize: false });
   c.isSubgraph = false;
@@ -42,12 +42,13 @@ getComponent = () => {
   })
 
   return c.process((c, port, payload) => {
-    console.log("Payload: " + payload);
-    payload = JSON.parse(payload);
-    redis.get(payload.key, (err, value) => {
-        console.log("Key: ", payload.key , " Msg: " , value);
+    console.log("Payload: " + payload.content);
+    const content = JSON.parse(payload.content);
+    redis.get(content.key, (err, value) => {
+        console.log("Key: ", content.key , " Msg: " , value);
         outPort = c.getOutPort("OUT");
-        outPort.send(JSON.stringify({key:payload.key, value:value}));
+        payload.content = JSON.stringify({key:content.key, value:value});
+        outPort.send(JSON.stringify(payload));
       });
   });
 };

@@ -39,7 +39,7 @@ public class JavaScriptFunction extends Component {
 		v8.executeObjectScript(function);
 		Object result = v8.executeJSFunction("execute", ip.getContent());
 		drop(ip);
-		outport.send(create(result));
+		outport.send(create(result.toString()));
 
 	}
 

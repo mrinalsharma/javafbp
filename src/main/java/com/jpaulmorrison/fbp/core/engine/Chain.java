@@ -36,7 +36,11 @@ final class Chain {
 
   protected final String name;
 
-  Chain(final String n) {
+  public Chain() {
+	  this("");
+  }
+
+ public Chain(final String n) {
     name = n;
     members = new LinkedList<Packet<?>>();
   }

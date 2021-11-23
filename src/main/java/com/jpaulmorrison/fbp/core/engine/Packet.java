@@ -18,264 +18,347 @@
 
 package com.jpaulmorrison.fbp.core.engine;
 
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-/** A Packet may either contain an Object, when <code> type</type> is <code> NORMAL </code>,
- * or a String, when <code>type</code> is not <code>NORMAL</code>.  The latter case
- * is used for things like open and close brackets (where the String will be the name
- * of a group. e.g. accounts)
-*/
+/**
+ * A Packet may either contain an Object, when
+ * <code> type</type> is <code> NORMAL </code>, or a String, when
+ * <code>type</code> is not <code>NORMAL</code>. The latter case is used for
+ * things like open and close brackets (where the String will be the name of a
+ * group. e.g. accounts)
+ */
 
 public class Packet<T> implements Serializable {
 
-  
-  /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-static public final int OPEN = 1;
+	static public final int OPEN = 1;
 
-  static public final int CLOSE = 2;
+	static public final int CLOSE = 2;
 
-  static public final int NORMAL = 0;
+	static public final int NORMAL = 0;
 
-  private final T content;
+	private final T content;
 
-  private final int type;
+	private final int type;
 
-  Object owner;
+	Object owner;
 
-  HashMap<String, Chain> chains = null;
+	HashMap<String, Chain> chains = new HashMap<String, Chain>();
 
-  private HashMap<String, Object> attrs = null;
+	private Map<String, Object> attrs = null;
 
-  // An iteration that has nothing to iterate.               
-  private static Iterator<?> nullIter = new HashMap().values().iterator();
+	// An iteration that has nothing to iterate.
+	private static Iterator<?> nullIter = new HashMap().values().iterator();
 
-  @SuppressWarnings("unchecked")
-  Packet(final int newType, final String newName, final Thread newOwner) {
-    content = (T) newName;
-    setOwner(newOwner);
-    type = newType;
-  }
+	@SuppressWarnings("unchecked")
+	Packet(final int newType, final String newName, final Thread newOwner) {
+		content = (T) newName;
+		setOwner(newOwner);
+		type = newType;
+	}
 
-  @SuppressWarnings("unchecked")
-protected
-  Packet(final Object newContent, final Thread newOwner) {
-    content = (T) newContent;
-    setOwner(newOwner);
-    type = NORMAL;
-  }
+	Packet(final Object newContent, final Thread newOwner, Map<String, Object> attrs) {
+		content = (T) newContent;
+		setOwner(newOwner);
+		type = NORMAL;
+		this.attrs = attrs;
+	}
 
-  @Deprecated
-  // this function has been moved to Component
-  public void attach(final String name, final Packet<?> subordinate) {
-    if (subordinate == null) {
-      FlowError.complain("Null packet reference in 'attach' method call: " + Thread.currentThread().getName());
-    }
-    Packet<?> p = this;
-    while (p.owner instanceof Packet) {
-      if (p == subordinate) {
-        FlowError.complain("Loop in tree structure");
-      }
-      p = (Packet<?>) p.owner;
-    }
-    if (p == subordinate) {
-      FlowError.complain("Loop in tree structure");
-    }
-    if (p.owner != Thread.currentThread()) {
-      FlowError.complain("Packet not owned (directly or indirectly) by current component");
-    }
-    if (subordinate.owner != Thread.currentThread()) {
-      FlowError.complain("Subordinate packet not owned by current component");
-    }
-    if (chains == null) {
-      chains = new HashMap<String, Chain>();
-    }
-    Chain chain = chains.get(name);
-    if (chain == null) {
-      chain = new Chain(name);
-      chains.put(name, chain);
-    }
+	@SuppressWarnings("unchecked")
+	protected Packet(final Object newContent, final Thread newOwner) {
+		content = (T) newContent;
+		setOwner(newOwner);
+		type = NORMAL;
+	}
+	
+	@Deprecated
+	// this function has been moved to Component
+	public void attach(final String name, final Packet<?> subordinate, boolean ignoreThreadCompare) {
+		if (subordinate == null) {
+			FlowError.complain("Null packet reference in 'attach' method call: " + Thread.currentThread().getName());
+		}
+		Packet<?> p = this;
+		while (p.owner instanceof Packet) {
+			if (p == subordinate) {
+				FlowError.complain("Loop in tree structure");
+			}
+			p = (Packet<?>) p.owner;
+		}
+		if (p == subordinate) {
+			FlowError.complain("Loop in tree structure");
+		}
+		if ((p.owner != Thread.currentThread() ) && !ignoreThreadCompare) {
+			FlowError.complain("Packet not owned (directly or indirectly) by current component");
+		}
+		if ((subordinate.owner != Thread.currentThread()) && !ignoreThreadCompare) {
+			FlowError.complain("Subordinate packet not owned by current component");
+		}
+		if (chains == null) {
+			chains = new HashMap<String, Chain>();
+		}
+		Chain chain = chains.get(name);
+		if (chain == null) {
+			chain = new Chain(name);
+			chains.put(name, chain);
+		}
 
-    subordinate.setOwner(this);
-    chain.members.add(subordinate);
-  }
+		subordinate.setOwner(this);
+		chain.members.add(subordinate);
+	}
 
-  /** Clear the owner of a Packet, and reduce the number of Packets owned by the owner
-  *  (if owner is a Component) - if Packet is chained, owner is Chain
-  */
+	@Deprecated
+	// this function has been moved to Component
+	public void attach(final String name, final Packet<?> subordinate) {
+		attach(name, subordinate, false);
+	}
 
-  void clearOwner() {
-    if (owner instanceof Component) {
-      Component c = (Component) owner;
-      c.packetCount--;
+	/**
+	 * Clear the owner of a Packet, and reduce the number of Packets owned by the
+	 * owner (if owner is a Component) - if Packet is chained, owner is Chain
+	 */
 
-    }
-    owner = null;
-  }
+	void clearOwner() {
+		if (owner instanceof Component) {
+			Component c = (Component) owner;
+			c.packetCount--;
 
-  /** Detach Packet from named chain
-  */
+		}
+		owner = null;
+	}
 
-  @Deprecated
-  // this function has been moved to Component
-  public void detach(final String name, final Packet<?> subordinate) {
-    if (subordinate == null) {
-      FlowError.complain("Null packet reference in 'detach' method call: " + Thread.currentThread().getName());
-    }
-    Packet<?> root = getRoot();
-    if (root.owner != Thread.currentThread()) {
-      FlowError.complain("Packet not owned (directly or indirectly) by current component");
-    }
-    if (chains == null || null == chains.get(name)) {
-      FlowError.complain("Named chain does not exist: " + name + " (" + Thread.currentThread().getName() + ")");
-    }
-    Chain chain = chains.get(name);
-    if (!chain.members.remove(subordinate)) {
-      FlowError.complain("Object not found on " + name + ": " + Thread.currentThread().getName());
-    }
-    subordinate.setOwner(root.owner);
-    return;
-  }
+	/**
+	 * Detach Packet from named chain
+	 */
 
-  /** Get named attribute of Packet - may be any Object
-  */
-  Object getAttribute(final String key) {
-    if (attrs != null) {
-      return attrs.get(key);
-    }
+	@Deprecated
+	// this function has been moved to Component
+	public void detach(final String name, final Packet<?> subordinate) {
+		if (subordinate == null) {
+			FlowError.complain("Null packet reference in 'detach' method call: " + Thread.currentThread().getName());
+		}
+		Packet<?> root = getRoot();
+		if (root.owner != Thread.currentThread()) {
+			FlowError.complain("Packet not owned (directly or indirectly) by current component");
+		}
+		if (chains == null || null == chains.get(name)) {
+			FlowError.complain("Named chain does not exist: " + name + " (" + Thread.currentThread().getName() + ")");
+		}
+		Chain chain = chains.get(name);
+		if (!chain.members.remove(subordinate)) {
+			FlowError.complain("Object not found on " + name + ": " + Thread.currentThread().getName());
+		}
+		subordinate.setOwner(root.owner);
+		return;
+	}
 
-    return null;
-  }
+	/**
+	 * Get named attribute of Packet - may be any Object
+	 */
+	public Object getAttribute(final String key) {
+		if (attrs != null) {
+			return attrs.get(key);
+		}
 
-  /** Get all attributes of this Packet (as Iterator)
-  */
-  protected Iterator<?> getAttributes() {
-    if (attrs != null) {
-      return attrs.keySet().iterator();
-    }
+		return null;
+	}
 
-    return nullIter;
-  }
+	/**
+	 * Get all attributes of this Packet
+	 */
+	public Map<String, Object> getAttributes() {
+		return attrs;
+	}
 
-  /** Get named chain (as Iterator)
-  */
+	/**
+	 * Get all attributes of this Packet (as Iterator)
+	 */
+	protected Iterator<?> iterator() {
+		if (attrs != null) {
+			return attrs.keySet().iterator();
+		}
 
-  protected Iterator<?> getChain(final String name) {
-    if (chains == null) {
-      return nullIter;
-    }
-    Chain chain = chains.get(name);
-    if (chain != null) {
-      return chain.members.iterator();
-    }
+		return nullIter;
+	}
 
-    return nullIter;
-  }
+	/**
+	 * Get named chain (as Iterator)
+	 */
 
-  /** Get all chains for this Packet (as Iterator)
-  */
+	protected Iterator<?> getChain(final String name) {
+		if (chains == null) {
+			return nullIter;
+		}
+		Chain chain = chains.get(name);
+		if (chain != null) {
+			return chain.members.iterator();
+		}
 
-  protected Iterator<?> getChains() {
-    if (chains != null) {
-      return chains.keySet().iterator();
-    }
+		return nullIter;
+	}
 
-    return nullIter;
-  }
+	/**
+	 * Get all chains for this Packet (as Iterator)
+	 */
 
-  /** Get contents of this Packet - may be any Object
-  */
+	protected Iterator<?> getChains() {
+		if (chains != null) {
+			return chains.keySet().iterator();
+		}
 
-  public T getContent() {
-    //if (type == NORMAL)
-    return content;
-    // else
-    // return null;
-  }
+		return nullIter;
+	}
 
-  private String getName() {
-    if (type == NORMAL) {
-      return null;
-    }
+	/**
+	 * Get contents of this Packet - may be any Object
+	 */
 
-    return (String) content;
-  }
+	public T getContent() {
+		// if (type == NORMAL)
+		return content;
+		// else
+		// return null;
+	}
 
-  /** Get root of this Packet - it follows the Packet owner chain up until
-  * it finds a Packet that is owned by a Component rather than by a Packet
-  * bug fixed Mar. 18, 2012
-  */
+	private String getName() {
+		if (type == NORMAL) {
+			return null;
+		}
 
-  public Packet<?> getRoot() {
-    Packet<?> p = this;
-    while (p.owner instanceof Packet) {
-      p = (Packet<?>) p.owner;
-    }
-    return p;
-  }
+		return (String) content;
+	}
 
-  /** This method returns the type of a Packet
-  */
+	/**
+	 * Get root of this Packet - it follows the Packet owner chain up until it finds
+	 * a Packet that is owned by a Component rather than by a Packet bug fixed Mar.
+	 * 18, 2012
+	 */
 
-  public int getType() {
-    return type;
-  }
+	public Packet<?> getRoot() {
+		Packet<?> p = this;
+		while (p.owner instanceof Packet) {
+			p = (Packet<?>) p.owner;
+		}
+		return p;
+	}
 
-  /** Make an Object a named attribute of a Packet
-  */
+	/**
+	 * This method returns the type of a Packet
+	 */
 
-  protected void putAttribute(final String key, final Object value) {
+	public int getType() {
+		return type;
+	}
 
-    if (attrs == null) {
-      attrs = new HashMap<String, Object>();
-    }
-    attrs.put(key, value);
-  }
+	/**
+	 * Make an Object a named attribute of a Packet
+	 */
 
-  /** Remove a named attribute from a Packet (does not return the attribute)
-  */
+	public void putAttribute(final String key, final Object value) {
 
-  protected void removeAttribute(final String key) {
-    if (attrs != null) {
-      attrs.remove(key);
-    }
-  }
+		if (attrs == null) {
+			attrs = new HashMap<String, Object>();
+		}
+		attrs.put(key, value);
+	}
 
-  /** Change the owner of a Packet - if the owner is a Component,
-  * increment the number of Packets owned by that Component
-  * (when the Component is deactivated, it must no longer own any Packets)
-  */
+	/**
+	 * Remove a named attribute from a Packet (does not return the attribute)
+	 */
 
-  void setOwner(final Object newOwner) {
-    clearOwner();
-    owner = newOwner;
-    if (owner instanceof Component) {
-      Component c = (Component) owner;
-      c.packetCount++; // count of owned packets
+	public void removeAttribute(final String key) {
+		if (attrs != null) {
+			attrs.remove(key);
+		}
+	}
 
-    }
-  }
+	/**
+	 * Change the owner of a Packet - if the owner is a Component, increment the
+	 * number of Packets owned by that Component (when the Component is deactivated,
+	 * it must no longer own any Packets)
+	 */
 
-  @Override
-  public String toString() {
-    String value = "null";
-    final String names[] = { "NORMAL", "OPEN", "CLOSE" };
-    if (getType() == NORMAL) {
-      Object obj = getContent();
-      if (obj != null) {
-        value = obj.toString();
-      }
-    } else {
-      value = names[getType()];
-      value += "; " + getName();
-    }
-    return String.format("%1$s", value);
-  }
+	void setOwner(final Object newOwner) {
+		clearOwner();
+		owner = newOwner;
+		if (owner instanceof Component) {
+			Component c = (Component) owner;
+			c.packetCount++; // count of owned packets
+
+		}
+	}
+
+	@Override
+	public String toString() {
+		String value = "null";
+		final String names[] = { "NORMAL", "OPEN", "CLOSE" };
+		if (getType() == NORMAL) {
+			Object obj = getContent();
+			if (obj != null) {
+				value = obj.toString();
+			}
+		} else {
+			value = names[getType()];
+			value += "; " + getName();
+		}
+		return String.format("%1$s", value);
+	}
+
+	public JSONObject toJson() {
+		JSONObject root = new JSONObject();
+		root.put("attrs", attrs);
+		root.put("chains", new JSONObject());
+		root.put("content", this.getContent());
+		for (Entry<String, Chain> entry : chains.entrySet()) {
+			JSONArray packets = new JSONArray();
+			for (Packet p : entry.getValue().members) {
+				packets.put(p.toJson());
+			}
+			root.getJSONObject("chains").put(entry.getKey(), packets);
+
+		}
+		return root;
+
+	}
+
+	public static <T> Packet<T> fromJson(String strPacket, Thread owner) {
+		JSONObject root = new JSONObject(strPacket);
+		return fromJson(root, owner);
+	}
+
+	private static <T> Packet<T> fromJson(JSONObject jsonPacket, Thread owner) {
+		Packet<String> packet = new Packet<String>((String) jsonPacket.get("content"), owner);
+		for (String fieldKey : jsonPacket.toMap().keySet()) {
+			if (fieldKey.equals("chains")) {
+				JSONObject chains = jsonPacket.getJSONObject(fieldKey);
+				for (Entry<String, Object> entry : chains.toMap().entrySet()) {
+					JSONArray jsonChildPackets = chains.getJSONArray(entry.getKey());
+					Iterator iterator = jsonChildPackets.iterator();
+					while (iterator.hasNext()) {
+						Packet<String> p = fromJson((JSONObject) iterator.next(), owner);
+						packet.attach(entry.getKey(), p, true);
+					}
+
+				}
+			} else if (fieldKey.equals("attrs")) {
+				JSONObject attrs = jsonPacket.getJSONObject(fieldKey);
+				for (Entry<String, Object> entry : attrs.toMap().entrySet()) {
+					packet.putAttribute(entry.getKey(), entry.getValue());
+				}
+			}
+		}
+
+		return (Packet<T>) packet;
+	}
+
 }

@@ -1,0 +1,71 @@
+{
+	"schema": {
+		"title": "Splitter",
+		"type": "object",
+		"properties": {
+			"splitUsing": {
+				"title": "Split Using",
+				"type": "string",
+				"enum": [
+					"Fixed Length",
+					"String",
+					"JSON"
+				],
+				"default": "Fixed Length"
+			}
+		},
+		"required": [
+			"splitUsing",
+			"stream"
+		],
+		"dependencies": {
+			"splitUsing": {
+				"oneOf": [
+					{
+						"properties": {
+							"splitUsing": {
+								"enum": [
+									"Fixed Length"
+								]
+							},
+							"length": {
+								"title": "Length",
+								"type": "number"
+							},
+							"stream": {
+								"title": "Handle as a stream of messages",
+								"type": "boolean",
+								"default": false
+							}
+						},
+						"required": [
+							"length"
+						]
+					},
+					{
+						"properties": {
+							"splitUsing": {
+								"enum": [
+									"String"
+								]
+							},
+							"pattern": {
+								"title": "Pattern",
+								"type": "string"
+							},
+							"stream": {
+								"title": "Handle as a stream of messages",
+								"type": "boolean",
+								"default": false
+							}
+						},
+						"required": [
+							"pattern"
+						]
+					}
+				]
+			}
+		}
+	},
+	"uiSchema": {}
+}

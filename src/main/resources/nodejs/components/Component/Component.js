@@ -1,5 +1,6 @@
 var ports = require('./Ports')
 var process = require('process')
+var Packet = require('./Packet');
 
 process.on('uncaughtException', err => {
   console.error('There was an uncaught error',err.toString());
@@ -161,9 +162,24 @@ class Component {
    * @returns {void}
    */
   handleIP(port, payload) {
-    this.handle(this, port, payload);
+    let packet = new Packet.Packet();
+    if(typeof payload == 'string')
+    {
+      payload = JSON.parse(payload);
+      packet.attrs = payload.attrs;
+      packet.content = payload.content;
+      packet.chains = payload.chains;
+    }
+    else
+    {
+      throw new Error(`Payload should be a Packet in JSON format. Review Packet.java in JavaFbp.`);
+    }
+    this.handle(this, port, packet);
   };
 }
 Component.description = '';
 Component.icon = null;
-module.exports.Component = Component;
+module.exports = {
+  Component,
+  Packet:Packet.Packet
+}

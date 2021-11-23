@@ -19,9 +19,8 @@ getComponent = () => {
   });
 
   return c.process((c, port, payload) => {
-
-    console.log("Process callback executed.");
+    console.log("Process callback executed.", JSON.stringify(payload));
     outPort = c.getOutPort("OUT");
-    outPort.send(payload);
+    outPort.send(JSON.stringify(payload));
   })
 };

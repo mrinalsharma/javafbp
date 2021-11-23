@@ -24,9 +24,16 @@ class BasePort {
     if (validTypes.indexOf(this.datatype) === -1) {
       throw new Error(`Invalid port datatype '${datatype}' specified, valid are ${validTypes.join(', ')}`);
     }
-
     // Ensure schema defined for the port is valid
-    this.schema = JSON.stringify(options.schema || {});
+    if(options.schema != null && (typeof  options.schema === "string") && options.schema.endsWith('json') === true)
+    {
+      //console.log("****************")
+      this.schema = options.schema;
+    }
+    else 
+    {
+      this.schema = JSON.stringify(options.schema || {});
+    }
 
     /*     if (this.schema && (this.schema.indexOf('/') === -1)) {
           throw new Error(`Invalid port schema '${schema}' specified. Should be URL or MIME type`);

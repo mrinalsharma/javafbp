@@ -65,9 +65,9 @@ getComponent = () => {
   })
 
   return c.process((c, port, payload) => {
-    payload = JSON.parse(payload);
-    console.log("Payload: " + payload);
-    webPush.sendNotification(payload.sub,payload.msg)
+    const content = JSON.parse(payload.content);
+    console.log("Payload: " + content);
+    webPush.sendNotification(content.sub,content.msg)
       .then(success => { console.log("SUCCESS:" + success.toString()) })
       .catch(error => { console.log("Error: " + error.toString()) });
   });

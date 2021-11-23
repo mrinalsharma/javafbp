@@ -8,5 +8,9 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "ioredis": "^4.28.0",
+    "web-push": "^3.4.5"
+  }
 }

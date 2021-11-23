@@ -6,7 +6,7 @@ var iip = null;
 getComponent = () => {
 
   var c = new dt.Component();
-  c.inPorts.add('OPTIONS', {datatype: 'string', iip: true, schema: "RedisSet.json"});
+  c.inPorts.add('OPTIONS', {datatype: 'object', iip: true, schema: 'RedisSet.json'});
   c.inPorts.add('IN', { datatype: 'string', iip: false });
   c.isSubgraph = false;
   c.icon = "my icon";
@@ -43,10 +43,13 @@ getComponent = () => {
   })
 
   return c.process((c, port, payload) => {
-    console.log("Payload: " + payload);
-    payload = JSON.parse(payload);
-    console.log("Key: ", payload.key , " Msg: " , payload.value);
-    redis.set(payload.key, payload.value,"PX", iip.expiresIn);
+    console.log("Payload: " + payload.content);
+    const content = JSON.parse(payload.content);
+    if(typeof content.value === 'object'){
+      content.value = JSON.stringify(content.value);
+    }
+    console.log("Key: ", content.key , " Msg: " , content.value);
+    redis.set(content.key, content.value,"PX", iip.expiresIn);
 
   });
 };

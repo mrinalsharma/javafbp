@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jpaulmorrison.fbp.core.engine.Component;
 import com.jpaulmorrison.fbp.core.engine.ComponentDescription;
-import com.jpaulmorrison.fbp.core.engine.Connection;
 import com.jpaulmorrison.fbp.core.engine.InPort;
 import com.jpaulmorrison.fbp.core.engine.InPorts;
 import com.jpaulmorrison.fbp.core.engine.InputPort;
@@ -64,7 +63,8 @@ public class NodeJs extends Component {
 	public void send(String portName, V8Value payload) {
 		System.out.println("[INFO " +Thread.currentThread().getName()+ "] "+" Received payload to send : "+ payload);
 		outport = openOutput(portName);
-		outport.send(create(payload.toString()));
+		Packet<String> p = Packet.fromJson(payload.toString(), this);
+		outport.send(p);
 	}
 
 	@V8Function(name = "log")
@@ -182,7 +182,7 @@ public class NodeJs extends Component {
 							String portDisplayName = port.getName();
 							String portName = portDisplayName.substring(portDisplayName.lastIndexOf(".") + 1);
 							Packet packet = port.receive();
-							comp.invoke("handleIP", portName, packet.getContent());
+							comp.invoke("handleIP", portName, packet.toJson().toString());
 							drop(packet);
 						} else {
 							Thread.sleep(300);
